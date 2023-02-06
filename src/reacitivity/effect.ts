@@ -51,7 +51,7 @@ class ReactiveEffect {
     return this._fn()
   }
 }
-export function effect(fn: Function, options?: EffectOptions = {}) {
+export function effect(fn: Function, options: EffectOptions = {}) {
   const { scheduler } = options
   const _effect = new ReactiveEffect(fn, scheduler)
   // run called when init
