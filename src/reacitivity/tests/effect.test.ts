@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { effect } from "../effect";
 import { reactive } from "../reactive";
 
@@ -25,6 +25,24 @@ describe("effect", () => {
     const result = runner()
     expect(foo).toBe(3)
     expect(result).toBe('result')
-
+  })
+  it('scheduler', () => {
+    let run: any
+    let result
+    const foo = reactive({ foo: 1 })
+    const scheduler = vi.fn(() => {
+      run = runner
+    })
+    const runner = effect(() => {
+      result = foo.foo
+    },
+      { scheduler })
+    expect(scheduler).not.toHaveBeenCalled()
+    expect(result).toBe(1)
+    foo.foo++
+    expect(scheduler).toHaveBeenCalledTimes(1)
+    expect(result).toBe(1)
+    run && run()
+    expect(result).toBe(2)
   })
 })
