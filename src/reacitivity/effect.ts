@@ -39,11 +39,12 @@ class ReactiveEffect {
   }
   run() {
     activeEffect = this
-    this._fn()
+    return this._fn()
   }
 }
 export function effect(fn: Function) {
   const _effect = new ReactiveEffect(fn)
   // run called when init
   _effect.run()
+  return _effect.run.bind(_effect)
 }
