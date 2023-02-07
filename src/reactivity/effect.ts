@@ -10,6 +10,7 @@ export type FunctionWithEffect = Function & {
 
 export type EffectOptions = {
   scheduler?: Function
+  onStop?: () => void
 }
 
 const targetMap: TargetMap = new Map()
@@ -26,6 +27,8 @@ export function track(target: Object, key: Key) {
     dep = new Set()
     depsMap.set(key, dep)
   }
+  if (!activeEffect) return
+
   dep.add(activeEffect)
   activeEffect.deps.push(dep)
 }
@@ -48,6 +51,8 @@ class ReactiveEffect {
   private _fn: Function
   public scheduler?: Function
   public deps: EffectFns[]
+  onStop?: () => void
+  private active: boolean = true
 
   constructor(fn: Function, scheduler?: Function) {
     this._fn = fn
@@ -60,10 +65,18 @@ class ReactiveEffect {
   }
 
   stop() {
-    this.deps.forEach((dep) => {
-      dep.delete(this)
-    })
+    if (this.active) {
+      cleanupEffect(this)
+      this.onStop && this.onStop()
+      this.active = false
+    }
   }
+}
+function cleanupEffect(effect: ReactiveEffect) {
+  effect.deps.forEach((dep) => {
+    dep.delete(effect)
+  })
+
 }
 export function stop(runner: FunctionWithEffect) {
   if (!runner.effect) return
@@ -71,8 +84,10 @@ export function stop(runner: FunctionWithEffect) {
 
 }
 export function effect(fn: Function, options: EffectOptions = {}) {
-  const { scheduler } = options
+  const { scheduler, onStop } = options
   const _effect = new ReactiveEffect(fn, scheduler)
+  Object.assign(_effect, options)
+
   // run called when init
   _effect.run()
   const runner = _effect.run.bind(_effect) as FunctionWithEffect
