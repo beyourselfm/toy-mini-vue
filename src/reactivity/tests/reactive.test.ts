@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { reactive } from "../reactive";
+import { isReactive, reactive } from "../reactive";
 
 describe("reactive", () => {
   it("", () => {
@@ -12,5 +12,6 @@ describe("reactive", () => {
         "a": 2,
       }
     `)
+    expect(isReactive(proxy)).toBe(true)
   })
 })

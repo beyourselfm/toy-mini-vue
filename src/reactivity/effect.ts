@@ -84,7 +84,7 @@ export function stop(runner: FunctionWithEffect) {
 
 }
 export function effect(fn: Function, options: EffectOptions = {}) {
-  const { scheduler, onStop } = options
+  const { scheduler } = options
   const _effect = new ReactiveEffect(fn, scheduler)
   Object.assign(_effect, options)
 
