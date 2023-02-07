@@ -4,11 +4,11 @@ export const enum ReactiveFlags {
   IS_READONLY = "__is_readonly__",
 }
 
-export function reactive<T extends object>(raw: T) {
+export function reactive<T extends object>(raw: T): T {
   return createReactiveObject(raw, mutableHandlers) as T
 }
 
-export function readonly<T extends object>(raw: T) {
+export function readonly<T extends object>(raw: T): T {
   return createReactiveObject(raw, readonlyHandlers) as T
 }
 

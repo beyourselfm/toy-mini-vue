@@ -1,5 +1,6 @@
+import { isObject } from "../utils"
 import { Key, track, trigger } from "./effect"
-import { ReactiveFlags } from "./reactive"
+import { reactive, ReactiveFlags, readonly } from "./reactive"
 
 // created once
 const get = createGetter()
@@ -15,6 +16,9 @@ function createGetter(isReadonly: boolean = false) {
     }
 
     const res = Reflect.get(target, key)
+    if (isObject(res)) {
+      return isReadonly ? readonly(res) : reactive(res)
+    }
     if (!isReadonly) {
       track(target, key)
     }

@@ -18,6 +18,7 @@ let activeEffect: ReactiveEffect
 let shouldTrack: boolean
 
 export function track(target: Object, key: Key) {
+  if (!isTracking()) return
   let depsMap = targetMap.get(target)
   if (!depsMap) {
     depsMap = new Map()
@@ -28,8 +29,6 @@ export function track(target: Object, key: Key) {
     dep = new Set()
     depsMap.set(key, dep)
   }
-  if (!activeEffect) return
-  if (!shouldTrack) return
 
   dep.add(activeEffect)
   activeEffect.deps.push(dep)
@@ -65,10 +64,12 @@ class ReactiveEffect {
     if (!this.active) {
       return this._fn()
     }
-    activeEffect = this
     // ++ => get and set
     shouldTrack = true
+    //
+    activeEffect = this
     const result = this._fn()
+
     shouldTrack = false
     return result
   }
@@ -81,10 +82,14 @@ class ReactiveEffect {
     }
   }
 }
+function isTracking() {
+  return shouldTrack && activeEffect !== undefined
+}
 function cleanupEffect(effect: ReactiveEffect) {
   effect.deps.forEach((dep) => {
     dep.delete(effect)
   })
+  effect.deps.length = 0
 
 }
 export function stop(runner: FunctionWithEffect) {
