@@ -3,6 +3,11 @@ export type Object = Record<Key, any>
 export type EffectFns = Set<ReactiveEffect>
 export type Dep = Map<Key, EffectFns>
 export type TargetMap = Map<Object, Dep>
+export type ProxyType = typeof Proxy
+export type FunctionWithEffect = Function & {
+  effect?: ReactiveEffect
+}
+
 export type EffectOptions = {
   scheduler?: Function
 }
@@ -22,6 +27,7 @@ export function track(target: Object, key: Key) {
     depsMap.set(key, dep)
   }
   dep.add(activeEffect)
+  activeEffect.deps.push(dep)
 }
 
 export function trigger(target: Object, key: Key) {
@@ -41,20 +47,36 @@ export function trigger(target: Object, key: Key) {
 class ReactiveEffect {
   private _fn: Function
   public scheduler?: Function
+  public deps: EffectFns[]
 
   constructor(fn: Function, scheduler?: Function) {
     this._fn = fn
     this.scheduler = scheduler
+    this.deps = []
   }
   run() {
     activeEffect = this
     return this._fn()
   }
+
+  stop() {
+    this.deps.forEach((dep) => {
+      dep.delete(this)
+    })
+  }
+}
+export function stop(runner: FunctionWithEffect) {
+  if (!runner.effect) return
+  runner.effect?.stop()
+
 }
 export function effect(fn: Function, options: EffectOptions = {}) {
   const { scheduler } = options
   const _effect = new ReactiveEffect(fn, scheduler)
   // run called when init
   _effect.run()
-  return _effect.run.bind(_effect)
+  const runner = _effect.run.bind(_effect) as FunctionWithEffect
+  runner.effect = _effect
+
+  return runner
 }

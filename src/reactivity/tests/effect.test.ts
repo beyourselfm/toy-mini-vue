@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { effect } from "../effect";
+import { effect, stop } from "../effect"
 import { reactive } from "../reactive";
 
 describe("effect", () => {
@@ -44,5 +44,21 @@ describe("effect", () => {
     expect(result).toBe(1)
     run && run()
     expect(result).toBe(2)
+  })
+  it("stop", () => {
+    let result: any
+    const obj = reactive({ foo: 1 })
+    const runner = effect(() => {
+      result = obj.foo
+    })
+
+    obj.foo = 2
+    expect(result).toBe(2)
+    stop(runner)
+    obj.foo = 3
+    expect(result).toBe(2)
+
+    runner()
+    expect(result).toBe(3)
   })
 })
