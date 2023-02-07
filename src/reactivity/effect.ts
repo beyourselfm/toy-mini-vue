@@ -15,6 +15,7 @@ export type EffectOptions = {
 
 const targetMap: TargetMap = new Map()
 let activeEffect: ReactiveEffect
+let shouldTrack: boolean
 
 export function track(target: Object, key: Key) {
   let depsMap = targetMap.get(target)
@@ -28,6 +29,7 @@ export function track(target: Object, key: Key) {
     depsMap.set(key, dep)
   }
   if (!activeEffect) return
+  if (!shouldTrack) return
 
   dep.add(activeEffect)
   activeEffect.deps.push(dep)
@@ -60,8 +62,15 @@ class ReactiveEffect {
     this.deps = []
   }
   run() {
+    if (!this.active) {
+      return this._fn()
+    }
     activeEffect = this
-    return this._fn()
+    // ++ => get and set
+    shouldTrack = true
+    const result = this._fn()
+    shouldTrack = false
+    return result
   }
 
   stop() {
