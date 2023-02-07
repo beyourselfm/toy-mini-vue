@@ -51,7 +51,7 @@ class ReactiveEffect {
   private _fn: Function
   public scheduler?: Function
   public deps: EffectFns[]
-  onStop?: () => void
+  public onStop?: () => void
   private active: boolean = true
 
   constructor(fn: Function, scheduler?: Function) {
