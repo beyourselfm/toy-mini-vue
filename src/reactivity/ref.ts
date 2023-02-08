@@ -38,9 +38,26 @@ export function convertToReactive<T>(value: T) {
 export function ref<T>(value: T) {
   return new RefImpl(value)
 }
+export function isRef<T>(r: Ref<T> | unknown): r is Ref<T>
 export function isRef<T>(value: any): value is Ref {
   return !!(value && value.__is_ref)
 }
 export function unRef<T>(ref: T | Ref<T>): T {
   return isRef(ref) ? (ref.value as any) : ref
+}
+export function proxyRefs<T extends object>(ref: any) {
+  return new Proxy(ref, {
+    get(target, key, receiver) {
+      return unRef(Reflect.get(target, key, receiver))
+    },
+    set(target, key, newValue, receiver) {
+      if (isRef(target[key]) && !isRef(newValue)) {
+        target[key].value = newValue;
+        return true
+      } else {
+        return Reflect.set(target, key, newValue, receiver)
+      }
+    }
+  })
+
 }
