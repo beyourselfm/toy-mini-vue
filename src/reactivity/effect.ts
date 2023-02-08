@@ -2,7 +2,7 @@ export type Key = number | string | symbol
 export type Object = Record<Key, any>
 export type EffectFns = Set<ReactiveEffect>
 export type Dep = Map<Key, EffectFns>
-export type TargetMap = Map<Object, Dep>
+export type TargetMap = WeakMap<any, Dep>
 export type ProxyType = typeof Proxy
 export type FunctionWithEffect = Function & {
   effect?: ReactiveEffect
@@ -13,7 +13,7 @@ export type EffectOptions = {
   onStop?: () => void
 }
 
-const targetMap: TargetMap = new Map()
+const targetMap: TargetMap = new WeakMap()
 let activeEffect: ReactiveEffect
 let shouldTrack: boolean
 
