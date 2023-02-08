@@ -29,9 +29,7 @@ export function track(target: Object, key: Key) {
     dep = new Set()
     depsMap.set(key, dep)
   }
-
-  dep.add(activeEffect)
-  activeEffect.deps.push(dep)
+  trackEffects(dep)
 }
 
 export function trigger(target: Object, key: Key) {
@@ -39,6 +37,11 @@ export function trigger(target: Object, key: Key) {
   if (!depsMap) return
   let dep = depsMap?.get(key)
   if (!dep) return
+  triggerEffects(dep)
+
+}
+
+export function triggerEffects(dep: EffectFns) {
   for (const effect of dep) {
     if (effect.scheduler) {
       effect.scheduler()
@@ -46,7 +49,6 @@ export function trigger(target: Object, key: Key) {
       effect.run()
     }
   }
-
 }
 class ReactiveEffect {
   private _fn: Function
@@ -82,9 +84,15 @@ class ReactiveEffect {
     }
   }
 }
-function isTracking() {
+export function isTracking() {
   return shouldTrack && activeEffect !== undefined
 }
+export function trackEffects(dep: EffectFns) {
+  if (dep.has(activeEffect)) return
+  dep.add(activeEffect)
+  activeEffect.deps.push(dep)
+}
+
 function cleanupEffect(effect: ReactiveEffect) {
   effect.deps.forEach((dep) => {
     dep.delete(effect)
