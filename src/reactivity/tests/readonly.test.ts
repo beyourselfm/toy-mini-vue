@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { isReactive, isReadonly, readonly } from "../reactive";
+import { isProxy, isReactive, isReadonly, readonly } from "../reactive";
 
 describe('readonly', () => {
   it("", () => {
@@ -10,6 +10,7 @@ describe('readonly', () => {
     expect(isReadonly(original)).toBe(false)
     expect(isReadonly(readonlyObj)).toBe(true)
     expect(readonlyObj.foo).toBe(original.foo)
+    expect(isProxy(readonlyObj)).toBe(true)
   })
   it('warn when call set', () => {
 

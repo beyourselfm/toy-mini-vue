@@ -26,3 +26,7 @@ export function isReactive<T extends { [ReactiveFlags.IS_REACTIVE]?: boolean } &
 export function isReadonly<T extends { [ReactiveFlags.IS_READONLY]?: boolean } & object>(value: T) {
   return !!value[ReactiveFlags.IS_READONLY]
 }
+export function isProxy<T extends object>(value: T) {
+  return isReactive(value) || isReadonly(value)
+
+}
