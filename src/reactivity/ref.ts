@@ -5,7 +5,7 @@ import { reactive } from "./reactive"
 type Ref<T = any> = {
   value: T
 }
-class RefImpl<T>{
+class RefImpl<T = any>{
   private _value: T
   private dep: EffectFns
   private _rawValue: T
@@ -38,14 +38,14 @@ export function convertToReactive<T>(value: T) {
 export function ref<T>(value: T) {
   return new RefImpl(value)
 }
-export function isRef<T>(r: Ref<T> | unknown): r is Ref<T>
-export function isRef<T>(value: any): value is Ref {
+export function isRef<T>(r: Ref<T> | unknown): r is RefImpl<T>
+export function isRef(value: any): value is RefImpl {
   return !!(value && value.__is_ref)
 }
 export function unRef<T>(ref: T | Ref<T>): T {
   return isRef(ref) ? (ref.value as any) : ref
 }
-export function proxyRefs<T extends object>(ref: any) {
+export function proxyRefs(ref: any): any {
   return new Proxy(ref, {
     get(target, key, receiver) {
       return unRef(Reflect.get(target, key, receiver))

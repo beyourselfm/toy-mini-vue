@@ -50,7 +50,7 @@ export function triggerEffects(dep: EffectFns) {
     }
   }
 }
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: Function
   public scheduler?: Function
   public deps: EffectFns[]
