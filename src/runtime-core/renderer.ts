@@ -41,7 +41,7 @@ function mountElement(vnode: VNode, container: Container) {
   if (isString(children)) {
     el.textContent = children
   } else if (Array.isArray(children)) {
-    mountChildren(vnode, container)
+    mountChildren(vnode, el)
   }
   const { props } = vnode
   for (const key in props) {
