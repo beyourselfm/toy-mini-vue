@@ -145,7 +145,7 @@ const readonlyHandlers = {
         return true;
     }
 };
-const shallowReadonlyHandlers = Object.assign({}, readonlyGet, {
+const shallowReadonlyHandlers = Object.assign({}, readonlyHandlers, {
     get: shallowReadonlyGet,
 });
 
@@ -159,6 +159,10 @@ function shallowReadonly(raw) {
     return createReactiveObject(raw, shallowReadonlyHandlers);
 }
 function createReactiveObject(target, baseHandlers) {
+    if (!isObject(target)) {
+        console.warn(`${target} must be a object`);
+        return;
+    }
     return new Proxy(target, baseHandlers);
 }
 function isReactive(value) {
@@ -244,7 +248,7 @@ function proxyRefs(ref) {
 }
 
 function initProps(instance, rawProps) {
-    instance.props = rawProps;
+    instance.props = rawProps || {};
 }
 
 const publicPropertiesMap = {
@@ -273,7 +277,6 @@ function createComponentInstance(vnode) {
         vnode,
         type: vnode.type,
         setupState: {},
-        props: {}
     };
     instance.proxy = new Proxy({
         _: instance
@@ -289,7 +292,8 @@ function setupStatefulComponent(instance) {
     const { setup } = Component;
     if (setup) {
         // fn or object
-        const setupResult = setup(instance.props);
+        debugger;
+        const setupResult = setup(shallowReadonly(instance.props));
         handleSetupResult(instance, setupResult);
     }
 }
