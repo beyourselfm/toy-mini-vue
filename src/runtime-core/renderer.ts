@@ -26,7 +26,8 @@ function mountComponent(vnode: VNode, container: Container) {
 }
 
 function setupRenderEffect(instance: ComponentInstance, container: Container) {
-  const subTree = (instance.type as VNodeComponent).render()
+  const { proxy } = instance
+  const subTree = (instance.type as VNodeComponent).render.call(proxy)
   patch(subTree, container)
 }
 
