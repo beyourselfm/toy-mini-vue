@@ -1,4 +1,5 @@
 import { isObject } from "../utils"
+import { publicInstanceProxyHandler } from "./ComponentPublicInstance"
 import { VNode, VNodeComponent, VNodeType } from "./vnode"
 
 export type ComponentInstance = {
@@ -23,15 +24,9 @@ export function setupComponent(instance: ComponentInstance) {
 
 function setupStatefulComponent(instance: ComponentInstance) {
   const Component = instance.type as VNodeComponent
-  instance.proxy = new Proxy({}, {
-    get(target, key) {
-
-      const { setupState } = instance
-      if (key in setupState) {
-        return setupState[key]
-      }
-    }
-  })
+  instance.proxy = new Proxy({
+    _: instance
+  }, publicInstanceProxyHandler)
   const { setup } = Component
 
   if (setup) {

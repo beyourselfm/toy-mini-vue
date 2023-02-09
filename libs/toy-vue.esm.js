@@ -240,6 +240,23 @@ function proxyRefs(ref) {
     });
 }
 
+const publicPropertiesMap = {
+    $el: (instance) => instance.vnode.el,
+    $data: (instance) => instance.setupState,
+};
+const publicInstanceProxyHandler = {
+    get({ _: instance }, key) {
+        const { setupState } = instance;
+        if (key in setupState) {
+            return setupState[key];
+        }
+        const getter = publicPropertiesMap[key];
+        if (getter) {
+            return getter(instance);
+        }
+    }
+};
+
 function createComponentInstance(vnode) {
     const component = {
         vnode,
@@ -253,14 +270,9 @@ function setupComponent(instance) {
 }
 function setupStatefulComponent(instance) {
     const Component = instance.type;
-    instance.proxy = new Proxy({}, {
-        get(target, key) {
-            const { setupState } = instance;
-            if (key in setupState) {
-                return setupState[key];
-            }
-        }
-    });
+    instance.proxy = new Proxy({
+        _: instance
+    }, publicInstanceProxyHandler);
     const { setup } = Component;
     if (setup) {
         // fn or object
@@ -299,18 +311,19 @@ function processComponent(vnode, container) {
 function mountComponent(vnode, container) {
     const instance = createComponentInstance(vnode);
     setupComponent(instance);
-    setupRenderEffect(instance, container);
+    setupRenderEffect(instance, vnode, container);
 }
-function setupRenderEffect(instance, container) {
+function setupRenderEffect(instance, vnode, container) {
     const { proxy } = instance;
     const subTree = instance.type.render.call(proxy);
     patch(subTree, container);
+    vnode.el = subTree.el;
 }
 function processElement(vnode, container) {
     mountElement(vnode, container);
 }
 function mountElement(vnode, container) {
-    const el = document.createElement(vnode.type);
+    const el = vnode.el = document.createElement(vnode.type);
     const { children } = vnode;
     if (isString(children)) {
         el.textContent = children;
@@ -335,6 +348,7 @@ function createVNode(type, props, children) {
         type,
         props,
         children,
+        el: null
     };
     return vnode;
 }

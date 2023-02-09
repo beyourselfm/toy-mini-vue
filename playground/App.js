@@ -1,9 +1,11 @@
 import { h } from "../libs/toy-vue.esm";
+window.self = null
 export const App = {
   render() {
+    window.self = this
     return h("div", {
       id:"root",
-    },[h("p",{class:"red"},"dont know"),h("p",undefined,"hahah")]);
+    },"hi" + this.foo);
   },
   setup(){
     return {

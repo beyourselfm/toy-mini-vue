@@ -11,6 +11,7 @@ export type VNodeProps = {
   key?: string | number | symbol
 }
 export type VNode = {
+  el: HTMLElement | null
   type: VNodeType
   props: VNodeProps
   children: Children
@@ -21,6 +22,7 @@ export function createVNode(type: VNodeType, props?: VNodeProps, children?: Chil
     type,
     props,
     children,
+    el: null
   }
 
   return vnode
