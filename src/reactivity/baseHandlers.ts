@@ -52,6 +52,6 @@ export const readonlyHandlers = {
   }
 }
 
-export const shallowReadonlyHandlers = Object.assign({}, readonlyGet, {
+export const shallowReadonlyHandlers = Object.assign({}, readonlyHandlers, {
   get: shallowReadonlyGet,
 })

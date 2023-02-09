@@ -13,4 +13,14 @@ describe('shallowReadonly', () => {
     expect(isReadonly(observed)).toBe(true)
     expect(isReadonly(observed.nested)).toBe(false)
   })
+
+  it('warn when call set', () => {
+    console.warn = vi.fn()
+    const user = shallowReadonly({
+      age: 10
+    })
+    //@ts-ignore
+    user.age = 11
+    expect(console.warn).toBeCalled()
+  })
 })
