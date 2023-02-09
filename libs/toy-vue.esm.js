@@ -96,7 +96,6 @@ function effect(fn, options = {}) {
 
 const isObject = (val) => val !== null && typeof val === 'object';
 const hasChanged = (val, newVal) => !Object.is(val, newVal);
-const isString = (val) => typeof val === 'string';
 
 // created once
 const get = createGetter();
@@ -258,21 +257,21 @@ const publicInstanceProxyHandler = {
 };
 
 function createComponentInstance(vnode) {
-    const component = {
+    const instance = {
         vnode,
         type: vnode.type,
         setupState: {}
     };
-    return component;
+    instance.proxy = new Proxy({
+        _: instance
+    }, publicInstanceProxyHandler);
+    return instance;
 }
 function setupComponent(instance) {
     setupStatefulComponent(instance);
 }
 function setupStatefulComponent(instance) {
     const Component = instance.type;
-    instance.proxy = new Proxy({
-        _: instance
-    }, publicInstanceProxyHandler);
     const { setup } = Component;
     if (setup) {
         // fn or object
@@ -281,7 +280,7 @@ function setupStatefulComponent(instance) {
     }
 }
 function handleSetupResult(instance, setupResult) {
-    //
+    // setup return object or function
     if (isObject(setupResult)) {
         instance.setupState = setupResult;
     }
@@ -298,10 +297,11 @@ function render(vnode, container) {
     patch(vnode, container);
 }
 function patch(vnode, container) {
-    if (isString(vnode.type)) {
+    const { shapeFlag } = vnode;
+    if (shapeFlag & 1 /* ShapeFlags.ELEMENT */) {
         processElement(vnode, container);
     }
-    else {
+    else if (shapeFlag & 2 /* ShapeFlags.STATEFUL_COMPONENT */) {
         processComponent(vnode, container);
     }
 }
@@ -324,11 +324,11 @@ function processElement(vnode, container) {
 }
 function mountElement(vnode, container) {
     const el = vnode.el = document.createElement(vnode.type);
-    const { children } = vnode;
-    if (isString(children)) {
+    const { children, shapeFlag } = vnode;
+    if (shapeFlag & 4 /* ShapeFlags.TEXT_CHILDREN */) {
         el.textContent = children;
     }
-    else if (Array.isArray(children)) {
+    else if (shapeFlag & 8 /* ShapeFlags.ARRAY_CHILDREN */) {
         mountChildren(vnode, el);
     }
     const { props } = vnode;
@@ -348,9 +348,19 @@ function createVNode(type, props, children) {
         type,
         props,
         children,
-        el: null
+        el: null,
+        shapeFlag: getShapeFlag(type)
     };
+    if (typeof children === 'string') {
+        vnode.shapeFlag = vnode.shapeFlag | 4 /* ShapeFlags.TEXT_CHILDREN */;
+    }
+    else if (Array.isArray(children)) {
+        vnode.shapeFlag = 8 /* ShapeFlags.ARRAY_CHILDREN */;
+    }
     return vnode;
+}
+function getShapeFlag(type) {
+    return typeof type === 'string' ? 1 /* ShapeFlags.ELEMENT */ : 2 /* ShapeFlags.STATEFUL_COMPONENT */;
 }
 
 function createApp(root) {

@@ -1,4 +1,6 @@
+import { isString } from "../utils"
 import { ComponentInstance } from "./component"
+import { ShapeFlags } from "./ShapeFlags"
 
 export type VNodeComponent = {
   render?: () => any
@@ -15,6 +17,7 @@ export type VNode = {
   type: VNodeType
   props: VNodeProps
   children: Children
+  shapeFlag: ShapeFlags
 }
 
 export function createVNode(type: VNodeType, props?: VNodeProps, children?: Children): VNode {
@@ -22,8 +25,18 @@ export function createVNode(type: VNodeType, props?: VNodeProps, children?: Chil
     type,
     props,
     children,
-    el: null
+    el: null,
+    shapeFlag: getShapeFlag(type)
+  }
+  if (isString(children)) {
+    vnode.shapeFlag = vnode.shapeFlag | ShapeFlags.TEXT_CHILDREN
+  } else if (Array.isArray(children)) {
+    vnode.shapeFlag = vnode.shapeFlag | ShapeFlags.ARRAY_CHILDREN
   }
 
   return vnode
+}
+
+function getShapeFlag(type: VNodeType) {
+  return typeof type === 'string' ? ShapeFlags.ELEMENT : ShapeFlags.STATEFUL_COMPONENT
 }

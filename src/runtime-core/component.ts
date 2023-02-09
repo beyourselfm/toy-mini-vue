@@ -8,14 +8,18 @@ export type ComponentInstance = {
   setupState?: any
   proxy?: object
 }
-export function createComponentInstance(vnode: VNode): ComponentInstance {
-  const component = {
+export function createComponentInstance(vnode: VNode) {
+  const instance: ComponentInstance = {
     vnode,
     type: vnode.type,
     setupState: {}
   }
 
-  return component
+  instance.proxy = new Proxy({
+    _: instance
+  }, publicInstanceProxyHandler)
+
+  return instance
 }
 
 export function setupComponent(instance: ComponentInstance) {
@@ -24,9 +28,6 @@ export function setupComponent(instance: ComponentInstance) {
 
 function setupStatefulComponent(instance: ComponentInstance) {
   const Component = instance.type as VNodeComponent
-  instance.proxy = new Proxy({
-    _: instance
-  }, publicInstanceProxyHandler)
   const { setup } = Component
 
   if (setup) {
@@ -37,7 +38,7 @@ function setupStatefulComponent(instance: ComponentInstance) {
   }
 }
 function handleSetupResult(instance: ComponentInstance, setupResult: any) {
-  //
+  // setup return object or function
   if (isObject(setupResult)) {
     instance.setupState = setupResult
   }
