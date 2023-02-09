@@ -1,3 +1,4 @@
+import { hasOwn } from "../utils"
 import { ComponentInstance } from "./component"
 
 const publicPropertiesMap = {
@@ -8,9 +9,12 @@ const publicPropertiesMap = {
 
 export const publicInstanceProxyHandler = {
   get({ _: instance }, key) {
-    const { setupState } = instance
-    if (key in setupState) {
+    const { setupState, props } = instance
+    debugger
+    if (hasOwn(setupState, key)) {
       return setupState[key]
+    } else if (hasOwn(props, key)) {
+      return props[key]
     }
 
     const getter = publicPropertiesMap[key]
@@ -19,3 +23,4 @@ export const publicInstanceProxyHandler = {
     }
   }
 }
+

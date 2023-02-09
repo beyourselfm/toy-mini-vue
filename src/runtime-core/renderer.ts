@@ -52,11 +52,18 @@ function mountElement(vnode: VNode, container: Container) {
     mountChildren(vnode, el)
   }
   const { props } = vnode
+  const isStartWithOn = (key: string) => /^on[A-Za-z]/.test(key)
   for (const key in props) {
-    el.setAttribute(key, props[key])
+    if (isStartWithOn(key)) {
+      const event = key.slice(2).toLocaleLowerCase()
+      el.addEventListener(event, props[key])
+    } else {
+      el.setAttribute(key, props[key])
+    }
   }
   container.append(el)
 }
+function handleEventListener() { }
 function mountChildren(vnode: VNode, container: Container) {
   (vnode.children as ChildrenWithArray).forEach(v => {
     patch(v, container)

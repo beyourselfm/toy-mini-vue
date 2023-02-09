@@ -4,14 +4,15 @@ import { ShapeFlags } from "./ShapeFlags"
 
 export type VNodeComponent = {
   render?: () => any
-  setup?: () => any
+  setup?: (props?: VNodeProps) => any
 }
 export type VNodeType = | string | VNodeComponent
 export type Children = string | VNode | ChildrenWithArray
 export type ChildrenWithArray = string[] | VNode[]
 export type VNodeProps = {
   key?: string | number | symbol
-}
+
+} & Record<string | number | symbol, any>
 export type VNode = {
   el: HTMLElement | null
   type: VNodeType

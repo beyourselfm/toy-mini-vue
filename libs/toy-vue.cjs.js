@@ -98,6 +98,8 @@ function effect(fn, options = {}) {
 
 const isObject = (val) => val !== null && typeof val === 'object';
 const hasChanged = (val, newVal) => !Object.is(val, newVal);
+const isString = (val) => typeof val === 'string';
+const hasOwn = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
 
 // created once
 const get = createGetter();
@@ -241,15 +243,23 @@ function proxyRefs(ref) {
     });
 }
 
+function initProps(instance, rawProps) {
+    instance.props = rawProps;
+}
+
 const publicPropertiesMap = {
     $el: (instance) => instance.vnode.el,
     $data: (instance) => instance.setupState,
 };
 const publicInstanceProxyHandler = {
     get({ _: instance }, key) {
-        const { setupState } = instance;
-        if (key in setupState) {
+        const { setupState, props } = instance;
+        debugger;
+        if (hasOwn(setupState, key)) {
             return setupState[key];
+        }
+        else if (hasOwn(props, key)) {
+            return props[key];
         }
         const getter = publicPropertiesMap[key];
         if (getter) {
@@ -262,7 +272,8 @@ function createComponentInstance(vnode) {
     const instance = {
         vnode,
         type: vnode.type,
-        setupState: {}
+        setupState: {},
+        props: {}
     };
     instance.proxy = new Proxy({
         _: instance
@@ -270,6 +281,7 @@ function createComponentInstance(vnode) {
     return instance;
 }
 function setupComponent(instance) {
+    initProps(instance, instance.vnode.props);
     setupStatefulComponent(instance);
 }
 function setupStatefulComponent(instance) {
@@ -277,7 +289,7 @@ function setupStatefulComponent(instance) {
     const { setup } = Component;
     if (setup) {
         // fn or object
-        const setupResult = setup();
+        const setupResult = setup(instance.props);
         handleSetupResult(instance, setupResult);
     }
 }
@@ -334,8 +346,15 @@ function mountElement(vnode, container) {
         mountChildren(vnode, el);
     }
     const { props } = vnode;
+    const isStartWithOn = (key) => /^on[A-Za-z]/.test(key);
     for (const key in props) {
-        el.setAttribute(key, props[key]);
+        if (isStartWithOn(key)) {
+            const event = key.slice(2).toLocaleLowerCase();
+            el.addEventListener(event, props[key]);
+        }
+        else {
+            el.setAttribute(key, props[key]);
+        }
     }
     container.append(el);
 }
@@ -353,11 +372,11 @@ function createVNode(type, props, children) {
         el: null,
         shapeFlag: getShapeFlag(type)
     };
-    if (typeof children === 'string') {
+    if (isString(children)) {
         vnode.shapeFlag = vnode.shapeFlag | 4 /* ShapeFlags.TEXT_CHILDREN */;
     }
     else if (Array.isArray(children)) {
-        vnode.shapeFlag = 8 /* ShapeFlags.ARRAY_CHILDREN */;
+        vnode.shapeFlag = vnode.shapeFlag | 8 /* ShapeFlags.ARRAY_CHILDREN */;
     }
     return vnode;
 }
