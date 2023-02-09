@@ -100,6 +100,11 @@ const isObject = (val) => val !== null && typeof val === 'object';
 const hasChanged = (val, newVal) => !Object.is(val, newVal);
 const isString = (val) => typeof val === 'string';
 const hasOwn = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
+const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+const toHandlerKey = (str) => str ? 'on' + capitalize(str) : "";
+const camelize = (str) => str.replace(/-(\w)/g, (_, c) => {
+    return c ? c.toUpperCase() : "";
+});
 
 // created once
 const get = createGetter();
@@ -247,6 +252,13 @@ function proxyRefs(ref) {
     });
 }
 
+function emit(instance, event, ...args) {
+    const { props } = instance;
+    const handlerName = toHandlerKey(camelize(event));
+    const handler = props[handlerName];
+    handler && handler(...args);
+}
+
 function initProps(instance, rawProps) {
     instance.props = rawProps || {};
 }
@@ -254,11 +266,11 @@ function initProps(instance, rawProps) {
 const publicPropertiesMap = {
     $el: (instance) => instance.vnode.el,
     $data: (instance) => instance.setupState,
+    $slots: (instance) => instance.slots
 };
 const publicInstanceProxyHandler = {
     get({ _: instance }, key) {
         const { setupState, props } = instance;
-        debugger;
         if (hasOwn(setupState, key)) {
             return setupState[key];
         }
@@ -272,12 +284,32 @@ const publicInstanceProxyHandler = {
     }
 };
 
+function initSlots(instance, children) {
+    const { vnode } = instance;
+    if (vnode.shapeFlag & 16 /* ShapeFlags.SLOT_CHILDREN */) {
+        normalizeObjectSlots(children, instance.slots);
+    }
+}
+function normalizeObjectSlots(children, slots) {
+    for (const key in children) {
+        const value = children[key];
+        slots[key] = normalizeSlotValue(value);
+    }
+}
+function normalizeSlotValue(value) {
+    return Array.isArray(value) ? value : [value];
+}
+
 function createComponentInstance(vnode) {
     const instance = {
         vnode,
         type: vnode.type,
+        props: {},
         setupState: {},
+        emit: () => { },
+        slots: {}
     };
+    instance.emit = emit.bind(null, instance);
     instance.proxy = new Proxy({
         _: instance
     }, publicInstanceProxyHandler);
@@ -285,6 +317,7 @@ function createComponentInstance(vnode) {
 }
 function setupComponent(instance) {
     initProps(instance, instance.vnode.props);
+    initSlots(instance, instance.vnode.children);
     setupStatefulComponent(instance);
 }
 function setupStatefulComponent(instance) {
@@ -292,8 +325,9 @@ function setupStatefulComponent(instance) {
     const { setup } = Component;
     if (setup) {
         // fn or object
-        debugger;
-        const setupResult = setup(shallowReadonly(instance.props));
+        const setupResult = setup(shallowReadonly(instance.props), {
+            emit: instance.emit
+        });
         handleSetupResult(instance, setupResult);
     }
 }
@@ -333,7 +367,7 @@ function mountComponent(vnode, container) {
 }
 function setupRenderEffect(instance, vnode, container) {
     const { proxy } = instance;
-    const subTree = instance.type.render.call(proxy);
+    const subTree = instance.render.call(proxy);
     patch(subTree, container);
     vnode.el = subTree.el;
 }
@@ -341,7 +375,7 @@ function processElement(vnode, container) {
     mountElement(vnode, container);
 }
 function mountElement(vnode, container) {
-    const el = vnode.el = document.createElement(vnode.type);
+    const el = (vnode.el = document.createElement(vnode.type));
     const { children, shapeFlag } = vnode;
     if (shapeFlag & 4 /* ShapeFlags.TEXT_CHILDREN */) {
         el.textContent = children;
@@ -382,6 +416,12 @@ function createVNode(type, props, children) {
     else if (Array.isArray(children)) {
         vnode.shapeFlag = vnode.shapeFlag | 8 /* ShapeFlags.ARRAY_CHILDREN */;
     }
+    if (vnode.shapeFlag & 2 /* ShapeFlags.STATEFUL_COMPONENT */) {
+        if (typeof children === 'object') {
+            // named slot
+            vnode.shapeFlag = vnode.shapeFlag | 16 /* ShapeFlags.SLOT_CHILDREN */;
+        }
+    }
     return vnode;
 }
 function getShapeFlag(type) {
@@ -399,6 +439,12 @@ function createApp(root) {
 
 function h(type, props, children) {
     return createVNode(type, props, children);
+}
+
+function renderSlots(slots, name) {
+    if (slots) {
+        return createVNode('div', {}, slots[name]);
+    }
 }
 
 exports.ReactiveEffect = ReactiveEffect;
@@ -419,6 +465,7 @@ exports.reactive = reactive;
 exports.readonly = readonly;
 exports.ref = ref;
 exports.render = render;
+exports.renderSlots = renderSlots;
 exports.setupComponent = setupComponent;
 exports.shallowReadonly = shallowReadonly;
 exports.stop = stop;

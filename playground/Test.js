@@ -1,11 +1,28 @@
-import { h } from "../libs/toy-vue.esm";
-export const Test={
-  setup(props){
+import { h, renderSlots } from "../libs/toy-vue.esm";
+export const Test = {
+  name: "Test",
+  setup(props, { emit }) {
     // shallowReadonly
-    debugger
-    props.count ++
+    const add = () => {
+      emit("add", 1, 2);
+      emit("foo-bar");
+      return;
+    };
+    props.count++;
+    return { add };
   },
-  render(){
-    return h("div",{},"foo"+this.count)
-  }
-}
+  render() {
+    const btn = h(
+      "button",
+      {
+        onClick: this.add,
+      },
+      "emit"
+    );
+    return h("div", {}, [
+      renderSlots(this.$slots, "header"),
+      btn,
+      renderSlots(this.$slots, "footer"),
+    ]);
+  },
+};

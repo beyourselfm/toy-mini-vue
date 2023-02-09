@@ -4,13 +4,13 @@ import { ComponentInstance } from "./component"
 const publicPropertiesMap = {
   $el: (instance: ComponentInstance) => instance.vnode.el,
   $data: (instance: ComponentInstance) => instance.setupState,
+  $slots: (instance: ComponentInstance) => instance.slots
 
 }
 
 export const publicInstanceProxyHandler = {
   get({ _: instance }, key) {
     const { setupState, props } = instance
-    debugger
     if (hasOwn(setupState, key)) {
       return setupState[key]
     } else if (hasOwn(props, key)) {

@@ -29,12 +29,10 @@ function mountComponent(vnode: VNode, container: Container) {
 
 function setupRenderEffect(instance: ComponentInstance, vnode: VNode, container: Container) {
   const { proxy } = instance
-  const subTree = (instance.type as VNodeComponent).render.call(proxy)
+  const subTree = instance.render.call(proxy)
+
   patch(subTree, container)
-
   vnode.el = subTree.el
-
-
 }
 
 function processElement(vnode: VNode, container: Container) {
@@ -42,7 +40,7 @@ function processElement(vnode: VNode, container: Container) {
 }
 
 function mountElement(vnode: VNode, container: Container) {
-  const el = vnode.el = document.createElement(vnode.type as string)
+  const el = (vnode.el = document.createElement(vnode.type as string))
 
   const { children, shapeFlag } = vnode
 
@@ -63,7 +61,6 @@ function mountElement(vnode: VNode, container: Container) {
   }
   container.append(el)
 }
-function handleEventListener() { }
 function mountChildren(vnode: VNode, container: Container) {
   (vnode.children as ChildrenWithArray).forEach(v => {
     patch(v, container)

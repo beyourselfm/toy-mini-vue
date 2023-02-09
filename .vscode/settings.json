@@ -1,5 +1,4 @@
 {
-  "cSpell.words": [
-    "vnode"
-  ]
+  "cSpell.words": ["vnode"],
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
