@@ -1,4 +1,4 @@
-import { h, renderSlots } from "../libs/toy-vue.esm";
+import { createTextVNode, h, renderSlots } from "../libs/toy-vue.esm";
 export const Test = {
   name: "Test",
   setup(props, { emit }) {
@@ -20,7 +20,7 @@ export const Test = {
       "emit"
     );
     return h("div", {}, [
-      renderSlots(this.$slots, "header"),
+      renderSlots(this.$slots, "header", { some: "some" }),
       btn,
       renderSlots(this.$slots, "footer"),
     ]);

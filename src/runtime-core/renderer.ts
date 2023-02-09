@@ -1,7 +1,8 @@
-import { isString } from "../utils"
 import { createComponentInstance, ComponentInstance, setupComponent } from "./component"
 import { ShapeFlags } from "./ShapeFlags"
 import { ChildrenWithArray, VNode, VNodeComponent, VNodeType } from "./vnode"
+export const Fragment = Symbol("Fragment")
+export const Text = Symbol("Text")
 
 export type Container = HTMLElement
 export function render(vnode: VNode, container: Container) {
@@ -9,11 +10,22 @@ export function render(vnode: VNode, container: Container) {
 }
 
 function patch(vnode: VNode, container: Container) {
-  const { shapeFlag } = vnode
-  if (shapeFlag & ShapeFlags.ELEMENT) {
-    processElement(vnode, container)
-  } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    processComponent(vnode, container)
+  const { type, shapeFlag } = vnode
+  switch (type) {
+    case Fragment:
+      processFragment(vnode, container)
+      break
+    case Text:
+      processText(vnode, container)
+      break
+    default:
+      if (shapeFlag & ShapeFlags.ELEMENT) {
+        processElement(vnode, container)
+      } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        processComponent(vnode, container)
+      }
+      break
+
   }
 }
 
@@ -65,5 +77,15 @@ function mountChildren(vnode: VNode, container: Container) {
   (vnode.children as ChildrenWithArray).forEach(v => {
     patch(v, container)
   })
+}
+
+function processFragment(vnode: VNode, container: HTMLElement) {
+  mountChildren(vnode, container)
+}
+
+function processText(vnode: VNode, container: Container) {
+  const { children } = vnode
+  const textNode = (vnode.el = document.createTextNode(children as string))
+  container.append(textNode)
 }
 

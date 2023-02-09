@@ -1,4 +1,4 @@
-import { h } from "../libs/toy-vue.esm";
+import { createTextVNode, h } from "../libs/toy-vue.esm";
 import { Test } from "./Test";
 window.self = null;
 export const App = {
@@ -24,8 +24,11 @@ export const App = {
             },
           },
           {
-            header: h("div", {}, "header"),
-            footer: h("div", {}, "footer"),
+            header: ({ some }) => [
+              createTextVNode("hehe"),
+              h("div", {}, "header" + some),
+            ],
+            footer: () => h("div", {}, "footer"),
           }
         ),
       ]

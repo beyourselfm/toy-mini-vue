@@ -293,7 +293,7 @@ function initSlots(instance, children) {
 function normalizeObjectSlots(children, slots) {
     for (const key in children) {
         const value = children[key];
-        slots[key] = normalizeSlotValue(value);
+        slots[key] = (props) => normalizeSlotValue(value(props));
     }
 }
 function normalizeSlotValue(value) {
@@ -345,16 +345,28 @@ function finishComponentSetup(instance) {
     }
 }
 
+const Fragment = Symbol("Fragment");
+const Text = Symbol("Text");
 function render(vnode, container) {
     patch(vnode, container);
 }
 function patch(vnode, container) {
-    const { shapeFlag } = vnode;
-    if (shapeFlag & 1 /* ShapeFlags.ELEMENT */) {
-        processElement(vnode, container);
-    }
-    else if (shapeFlag & 2 /* ShapeFlags.STATEFUL_COMPONENT */) {
-        processComponent(vnode, container);
+    const { type, shapeFlag } = vnode;
+    switch (type) {
+        case Fragment:
+            processFragment(vnode, container);
+            break;
+        case Text:
+            processText(vnode, container);
+            break;
+        default:
+            if (shapeFlag & 1 /* ShapeFlags.ELEMENT */) {
+                processElement(vnode, container);
+            }
+            else if (shapeFlag & 2 /* ShapeFlags.STATEFUL_COMPONENT */) {
+                processComponent(vnode, container);
+            }
+            break;
     }
 }
 function processComponent(vnode, container) {
@@ -401,6 +413,14 @@ function mountChildren(vnode, container) {
         patch(v, container);
     });
 }
+function processFragment(vnode, container) {
+    mountChildren(vnode, container);
+}
+function processText(vnode, container) {
+    const { children } = vnode;
+    const textNode = (vnode.el = document.createTextNode(children));
+    container.append(textNode);
+}
 
 function createVNode(type, props, children) {
     const vnode = {
@@ -424,6 +444,9 @@ function createVNode(type, props, children) {
     }
     return vnode;
 }
+function createTextVNode(text) {
+    return createVNode(Text, {}, text);
+}
 function getShapeFlag(type) {
     return typeof type === 'string' ? 1 /* ShapeFlags.ELEMENT */ : 2 /* ShapeFlags.STATEFUL_COMPONENT */;
 }
@@ -441,17 +464,23 @@ function h(type, props, children) {
     return createVNode(type, props, children);
 }
 
-function renderSlots(slots, name) {
+function renderSlots(slots, name, props) {
+    const slot = slots[name];
     if (slots) {
-        return createVNode('div', {}, slots[name]);
+        if (typeof slot === 'function') {
+            return createVNode(Fragment, {}, slot(props));
+        }
     }
 }
 
+exports.Fragment = Fragment;
 exports.ReactiveEffect = ReactiveEffect;
+exports.Text = Text;
 exports.computed = computed;
 exports.convertToReactive = convertToReactive;
 exports.createApp = createApp;
 exports.createComponentInstance = createComponentInstance;
+exports.createTextVNode = createTextVNode;
 exports.createVNode = createVNode;
 exports.effect = effect;
 exports.h = h;

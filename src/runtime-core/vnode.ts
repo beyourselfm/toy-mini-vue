@@ -1,6 +1,7 @@
 import { isString } from "../utils"
 import { ComponentInstance } from "./component"
 import { Emit } from "./componentEmit"
+import { Text } from "./renderer"
 import { ShapeFlags } from "./ShapeFlags"
 
 export type VNodeComponent = {
@@ -10,7 +11,7 @@ export type VNodeComponent = {
 export type Context = {
   emit?: Emit
 }
-export type VNodeType = | string | VNodeComponent
+export type VNodeType = | string | VNodeComponent | symbol
 export type Children = string | VNode | ChildrenWithArray
 export type ChildrenWithArray = string[] | VNode[]
 export type VNodeProps = {
@@ -18,7 +19,7 @@ export type VNodeProps = {
 
 } & Record<string | number | symbol, any>
 export type VNode = {
-  el: HTMLElement | null
+  el: HTMLElement | null | Text
   type: VNodeType
   props: VNodeProps
   children: Children
@@ -49,6 +50,10 @@ export function createVNode(type: VNodeType, props?: VNodeProps, children?: Chil
   return vnode
 }
 
+export function createTextVNode(text: string) {
+  return createVNode(Text, {}, text)
+
+}
 function getShapeFlag(type: VNodeType) {
   return typeof type === 'string' ? ShapeFlags.ELEMENT : ShapeFlags.STATEFUL_COMPONENT
 }
