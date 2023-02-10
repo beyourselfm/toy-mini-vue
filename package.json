@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "index.js",
+  "main": "libs/toy-vue.cjs.js",
+  "module": "libs/toy-vue.esm.js",
   "scripts": {
     "test": "vitest",
     "build": "rollup -c rollup.config.js",

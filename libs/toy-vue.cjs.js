@@ -359,7 +359,7 @@ function setCurrentInstance(instance) {
 const Fragment = Symbol("Fragment");
 const Text = Symbol("Text");
 function render(vnode, container) {
-    patch(vnode, container);
+    patch(vnode, container, null);
 }
 function patch(vnode, container, parentComponent) {
     const { type, shapeFlag } = vnode;

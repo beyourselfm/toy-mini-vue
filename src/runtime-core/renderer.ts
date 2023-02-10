@@ -6,10 +6,10 @@ export const Text = Symbol("Text")
 
 export type Container = HTMLElement
 export function render(vnode: VNode, container: Container) {
-  patch(vnode, container)
+  patch(vnode, container, null)
 }
 
-function patch(vnode: VNode, container: Container, parentComponent?: ComponentInstance) {
+function patch(vnode: VNode, container: Container, parentComponent: ComponentInstance) {
   const { type, shapeFlag } = vnode
   switch (type) {
     case Fragment:
