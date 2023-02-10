@@ -3,6 +3,7 @@ import {
   h,
   renderSlots,
   getCurrentInstance,
+  inject,
 } from "../libs/toy-vue.esm";
 export const Test = {
   name: "Test",
@@ -13,21 +14,17 @@ export const Test = {
       emit("foo-bar");
       return;
     };
-    console.log(getCurrentInstance());
-    return { add };
+    const bar = inject("bar");
+    const f = inject("f");
+    const defaultVal = inject("foo", "defaultVal");
+    return { bar, f, defaultVal };
   },
   render() {
-    const btn = h(
-      "button",
-      {
-        onClick: this.add,
-      },
-      "emit"
-    );
+    debugger;
     return h("div", {}, [
-      renderSlots(this.$slots, "header", { some: "some" }),
-      btn,
-      renderSlots(this.$slots, "footer"),
+      createTextVNode(this.bar),
+      createTextVNode(this.f),
+      createTextVNode(this.defaultVal),
     ]);
   },
 };

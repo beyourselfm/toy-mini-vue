@@ -300,14 +300,16 @@ function normalizeSlotValue(value) {
     return Array.isArray(value) ? value : [value];
 }
 
-function createComponentInstance(vnode) {
+function createComponentInstance(vnode, parent) {
     const instance = {
         vnode,
+        parent,
         type: vnode.type,
         props: {},
         setupState: {},
         emit: () => { },
-        slots: {}
+        slots: {},
+        provides: parent ? parent.provides : {}
     };
     instance.emit = emit.bind(null, instance);
     instance.proxy = new Proxy({
@@ -325,11 +327,11 @@ function setupStatefulComponent(instance) {
     const { setup } = Component;
     if (setup) {
         // fn or object
-        currentInstance = instance;
+        setCurrentInstance(instance);
         const setupResult = setup(shallowReadonly(instance.props), {
             emit: instance.emit
         });
-        currentInstance = null;
+        setCurrentInstance(null);
         handleSetupResult(instance, setupResult);
     }
 }
@@ -350,56 +352,59 @@ let currentInstance = null;
 function getCurrentInstance() {
     return currentInstance;
 }
+function setCurrentInstance(instance) {
+    currentInstance = instance;
+}
 
 const Fragment = Symbol("Fragment");
 const Text = Symbol("Text");
 function render(vnode, container) {
     patch(vnode, container);
 }
-function patch(vnode, container) {
+function patch(vnode, container, parentComponent) {
     const { type, shapeFlag } = vnode;
     switch (type) {
         case Fragment:
-            processFragment(vnode, container);
+            processFragment(vnode, container, parentComponent);
             break;
         case Text:
             processText(vnode, container);
             break;
         default:
             if (shapeFlag & 1 /* ShapeFlags.ELEMENT */) {
-                processElement(vnode, container);
+                processElement(vnode, container, parentComponent);
             }
             else if (shapeFlag & 2 /* ShapeFlags.STATEFUL_COMPONENT */) {
-                processComponent(vnode, container);
+                processComponent(vnode, container, parentComponent);
             }
             break;
     }
 }
-function processComponent(vnode, container) {
-    mountComponent(vnode, container);
+function processComponent(vnode, container, parentComponent) {
+    mountComponent(vnode, container, parentComponent);
 }
-function mountComponent(vnode, container) {
-    const instance = createComponentInstance(vnode);
+function mountComponent(vnode, container, parentComponent) {
+    const instance = createComponentInstance(vnode, parentComponent);
     setupComponent(instance);
     setupRenderEffect(instance, vnode, container);
 }
 function setupRenderEffect(instance, vnode, container) {
     const { proxy } = instance;
     const subTree = instance.render.call(proxy);
-    patch(subTree, container);
+    patch(subTree, container, instance);
     vnode.el = subTree.el;
 }
-function processElement(vnode, container) {
-    mountElement(vnode, container);
+function processElement(vnode, container, parentComponent) {
+    mountElement(vnode, container, parentComponent);
 }
-function mountElement(vnode, container) {
+function mountElement(vnode, container, parentComponent) {
     const el = (vnode.el = document.createElement(vnode.type));
     const { children, shapeFlag } = vnode;
     if (shapeFlag & 4 /* ShapeFlags.TEXT_CHILDREN */) {
         el.textContent = children;
     }
     else if (shapeFlag & 8 /* ShapeFlags.ARRAY_CHILDREN */) {
-        mountChildren(vnode, el);
+        mountChildren(vnode, el, parentComponent);
     }
     const { props } = vnode;
     const isStartWithOn = (key) => /^on[A-Za-z]/.test(key);
@@ -414,13 +419,13 @@ function mountElement(vnode, container) {
     }
     container.append(el);
 }
-function mountChildren(vnode, container) {
+function mountChildren(vnode, container, parentComponent) {
     vnode.children.forEach(v => {
-        patch(v, container);
+        patch(v, container, parentComponent);
     });
 }
-function processFragment(vnode, container) {
-    mountChildren(vnode, container);
+function processFragment(vnode, container, parentComponent) {
+    mountChildren(vnode, container, parentComponent);
 }
 function processText(vnode, container) {
     const { children } = vnode;
@@ -479,6 +484,33 @@ function renderSlots(slots, name, props) {
     }
 }
 
+function provide(key, val) {
+    var _a;
+    const currentInstance = getCurrentInstance();
+    if (currentInstance) {
+        let { provides } = currentInstance;
+        const parentProvides = (_a = currentInstance.parent) === null || _a === void 0 ? void 0 : _a.provides;
+        if (provides === parentProvides) {
+            // the provides will create a new provides if true,and let the prototype to parentProvides
+            provides = currentInstance.provides = Object.create(parentProvides);
+        }
+        provides[key] = val;
+    }
+}
+function inject(key, defaultVal) {
+    const currentInstance = getCurrentInstance();
+    if (currentInstance) {
+        const { parent } = currentInstance;
+        const parentProvides = parent.provides;
+        if (key in parentProvides) {
+            return parentProvides[key];
+        }
+        else if (defaultVal) {
+            return defaultVal;
+        }
+    }
+}
+
 exports.Fragment = Fragment;
 exports.ReactiveEffect = ReactiveEffect;
 exports.Text = Text;
@@ -491,17 +523,20 @@ exports.createVNode = createVNode;
 exports.effect = effect;
 exports.getCurrentInstance = getCurrentInstance;
 exports.h = h;
+exports.inject = inject;
 exports.isProxy = isProxy;
 exports.isReactive = isReactive;
 exports.isReadonly = isReadonly;
 exports.isRef = isRef;
 exports.isTracking = isTracking;
+exports.provide = provide;
 exports.proxyRefs = proxyRefs;
 exports.reactive = reactive;
 exports.readonly = readonly;
 exports.ref = ref;
 exports.render = render;
 exports.renderSlots = renderSlots;
+exports.setCurrentInstance = setCurrentInstance;
 exports.setupComponent = setupComponent;
 exports.shallowReadonly = shallowReadonly;
 exports.stop = stop;

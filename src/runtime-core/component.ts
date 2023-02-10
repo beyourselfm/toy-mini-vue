@@ -10,20 +10,24 @@ import { Children, VNode, VNodeComponent, VNodeProps, VNodeType } from "./vnode"
 export type ComponentInstance = {
   vnode: VNode
   type: VNodeType
+  parent: ComponentInstance,
   setupState?: object
+  provides?: object
   proxy?: object
   props?: VNodeProps
   emit?: Emit
   slots?: any
 } & VNodeComponent
-export function createComponentInstance(vnode: VNode) {
+export function createComponentInstance(vnode: VNode, parent: ComponentInstance) {
   const instance: ComponentInstance = {
     vnode,
+    parent,
     type: vnode.type,
     props: {},
     setupState: {},
     emit: () => { },
-    slots: {}
+    slots: {},
+    provides: parent ? parent.provides : {}
   }
   instance.emit = emit.bind(null, instance)
 

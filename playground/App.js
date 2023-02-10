@@ -1,4 +1,10 @@
-import { createTextVNode, getCurrentInstance, h } from "../libs/toy-vue.esm";
+import {
+  createTextVNode,
+  getCurrentInstance,
+  h,
+  provide,
+} from "../libs/toy-vue.esm";
+import { Provider } from "./provider";
 import { Test } from "./Test";
 window.self = null;
 export const App = {
@@ -7,35 +13,14 @@ export const App = {
     return h(
       "div",
       {
-        name: "APP",
+        name: "app",
         id: "root",
       },
-      [
-        h(
-          Test,
-          {
-            count: 1,
-            onAdd(a, b) {
-              console.log("onAdd");
-              console.log(a);
-            },
-            onFooBar() {
-              console.log("foo bar");
-            },
-          },
-          {
-            header: ({ some }) => [
-              createTextVNode("hehe"),
-              h("div", {}, "header" + some),
-            ],
-            footer: () => h("div", {}, "footer"),
-          }
-        ),
-      ]
+      [h(Provider, {})]
     );
   },
   setup() {
-    console.log(getCurrentInstance());
+    provide("f", "asd");
     return {
       foo: 1,
     };
