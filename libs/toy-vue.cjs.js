@@ -361,7 +361,7 @@ function setCurrentInstance(instance) {
 const Fragment = Symbol("Fragment");
 const Text = Symbol("Text");
 function createRender(options) {
-    const { createElement, patchProp, insert } = options;
+    const { createElement, patchProp, insert, setText } = options;
     function render(vnode, container) {
         patch(null, vnode, container, null);
     }
@@ -406,8 +406,9 @@ function createRender(options) {
                 // update
                 const { proxy } = instance;
                 const subTree = instance.render.call(proxy);
-                instance.subTree;
+                const prevSubTree = instance.subTree;
                 instance.subTree = subTree;
+                patch(prevSubTree, subTree, container, instance);
             }
         });
     }
@@ -430,7 +431,7 @@ function createRender(options) {
         }
         const { props } = vnode;
         for (const key in props) {
-            patchProp(el, key, props[key]);
+            patchProp(el, key, null, props[key]);
         }
         insert(el, container);
     }
@@ -444,21 +445,23 @@ function createRender(options) {
     }
     function processText(n1, n2, container) {
         const { children } = n2;
-        const textNode = (n2.el = document.createTextNode(children));
+        const textNode = (n2.el = setText(children));
         container.append(textNode);
     }
     function patchElement(n1, n2, container) {
         // updateElement
-        console.log(n1);
-        console.log(n2);
         const oldProps = n1.props || {};
         const newProps = n2.props || {};
-        patchProps(oldProps, newProps);
+        const el = (n2.el = n1.el);
+        patchProps(el, oldProps, newProps);
     }
-    function patchProps(oldProps, newProps) {
+    function patchProps(el, oldProps, newProps) {
         for (const key in newProps) {
-            oldProps[key];
-            oldProps[key];
+            const prevProp = oldProps[key];
+            const newProp = newProps[key];
+            if (prevProp !== newProp) {
+                patchProp(el, key, prevProp, newProp);
+            }
         }
     }
     return { createApp: createAppApi(render) };
@@ -547,22 +550,31 @@ function inject(key, defaultVal) {
 function createElement(type) {
     return document.createElement(type);
 }
-function patchProp(el, key, value) {
+function patchProp(el, key, value, nextVal) {
     if (isStartWithOn(key)) {
         const event = key.slice(2).toLocaleLowerCase();
-        el.addEventListener(event, value);
+        el.addEventListener(event, nextVal);
     }
     else {
-        el.setAttribute(key, value);
+        if (nextVal === undefined || nextVal === null) {
+            el.removeAttribute(key);
+        }
+        else {
+            el.setAttribute(key, nextVal);
+        }
     }
 }
 function insert(el, parent) {
     parent.append(el);
 }
+function setText(children) {
+    document.createTextNode(children);
+}
 const renderer = createRender({
     createElement,
     patchProp,
     insert,
+    setText
 });
 function createApp(root) {
     return renderer.createApp(root);

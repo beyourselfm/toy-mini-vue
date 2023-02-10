@@ -3,7 +3,7 @@ window.self = null;
 export const App = {
   render() {
     console.log(this.foo);
-    return h("div", {}, [
+    return h("div", { foo: this.val.foo, bar: this.val.bar }, [
       h("div", {}, "count : " + this.foo),
       h(
         "button",
