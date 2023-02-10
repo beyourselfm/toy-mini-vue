@@ -323,9 +323,11 @@ function setupStatefulComponent(instance) {
     const { setup } = Component;
     if (setup) {
         // fn or object
+        currentInstance = instance;
         const setupResult = setup(shallowReadonly(instance.props), {
             emit: instance.emit
         });
+        currentInstance = null;
         handleSetupResult(instance, setupResult);
     }
 }
@@ -341,6 +343,10 @@ function finishComponentSetup(instance) {
     if (Component.render) {
         instance.render = Component.render;
     }
+}
+let currentInstance = null;
+function getCurrentInstance() {
+    return currentInstance;
 }
 
 const Fragment = Symbol("Fragment");
@@ -471,4 +477,4 @@ function renderSlots(slots, name, props) {
     }
 }
 
-export { Fragment, ReactiveEffect, Text, computed, convertToReactive, createApp, createComponentInstance, createTextVNode, createVNode, effect, h, isProxy, isReactive, isReadonly, isRef, isTracking, proxyRefs, reactive, readonly, ref, render, renderSlots, setupComponent, shallowReadonly, stop, track, trackEffects, trigger, triggerEffects, unRef };
+export { Fragment, ReactiveEffect, Text, computed, convertToReactive, createApp, createComponentInstance, createTextVNode, createVNode, effect, getCurrentInstance, h, isProxy, isReactive, isReadonly, isRef, isTracking, proxyRefs, reactive, readonly, ref, render, renderSlots, setupComponent, shallowReadonly, stop, track, trackEffects, trigger, triggerEffects, unRef };

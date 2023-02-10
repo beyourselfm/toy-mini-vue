@@ -1,4 +1,9 @@
-import { createTextVNode, h, renderSlots } from "../libs/toy-vue.esm";
+import {
+  createTextVNode,
+  h,
+  renderSlots,
+  getCurrentInstance,
+} from "../libs/toy-vue.esm";
 export const Test = {
   name: "Test",
   setup(props, { emit }) {
@@ -8,7 +13,7 @@ export const Test = {
       emit("foo-bar");
       return;
     };
-    props.count++;
+    console.log(getCurrentInstance());
     return { add };
   },
   render() {

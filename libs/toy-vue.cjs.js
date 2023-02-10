@@ -325,9 +325,11 @@ function setupStatefulComponent(instance) {
     const { setup } = Component;
     if (setup) {
         // fn or object
+        currentInstance = instance;
         const setupResult = setup(shallowReadonly(instance.props), {
             emit: instance.emit
         });
+        currentInstance = null;
         handleSetupResult(instance, setupResult);
     }
 }
@@ -343,6 +345,10 @@ function finishComponentSetup(instance) {
     if (Component.render) {
         instance.render = Component.render;
     }
+}
+let currentInstance = null;
+function getCurrentInstance() {
+    return currentInstance;
 }
 
 const Fragment = Symbol("Fragment");
@@ -483,6 +489,7 @@ exports.createComponentInstance = createComponentInstance;
 exports.createTextVNode = createTextVNode;
 exports.createVNode = createVNode;
 exports.effect = effect;
+exports.getCurrentInstance = getCurrentInstance;
 exports.h = h;
 exports.isProxy = isProxy;
 exports.isReactive = isReactive;

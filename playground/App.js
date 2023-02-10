@@ -1,4 +1,4 @@
-import { createTextVNode, h } from "../libs/toy-vue.esm";
+import { createTextVNode, getCurrentInstance, h } from "../libs/toy-vue.esm";
 import { Test } from "./Test";
 window.self = null;
 export const App = {
@@ -35,6 +35,7 @@ export const App = {
     );
   },
   setup() {
+    console.log(getCurrentInstance());
     return {
       foo: 1,
     };
