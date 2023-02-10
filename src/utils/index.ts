@@ -6,6 +6,7 @@ export const hasOwn = (object: any, key: string | number | symbol) => Object.pro
 export const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
 export const toHandlerKey = (str: string) => str ? 'on' + capitalize(str) : ""
 
+export const isStartWithOn = (key: string) => /^on[A-Za-z]/.test(key)
 export const camelize = (str: string) => str.replace(/-(\w)/g, (_, c) => {
   return c ? c.toUpperCase() : ""
 })

@@ -102,6 +102,7 @@ const isString = (val) => typeof val === 'string';
 const hasOwn = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
 const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 const toHandlerKey = (str) => str ? 'on' + capitalize(str) : "";
+const isStartWithOn = (key) => /^on[A-Za-z]/.test(key);
 const camelize = (str) => str.replace(/-(\w)/g, (_, c) => {
     return c ? c.toUpperCase() : "";
 });
@@ -359,102 +360,108 @@ function setCurrentInstance(instance) {
 
 const Fragment = Symbol("Fragment");
 const Text = Symbol("Text");
-function render(vnode, container) {
-    patch(null, vnode, container, null);
-}
-function patch(n1, n2, container, parentComponent) {
-    const { type, shapeFlag } = n2;
-    switch (type) {
-        case Fragment:
-            processFragment(n1, n2, container, parentComponent);
-            break;
-        case Text:
-            processText(n1, n2, container);
-            break;
-        default:
-            if (shapeFlag & 1 /* ShapeFlags.ELEMENT */) {
-                processElement(n1, n2, container, parentComponent);
-            }
-            else if (shapeFlag & 2 /* ShapeFlags.STATEFUL_COMPONENT */) {
-                processComponent(n1, n2, container, parentComponent);
-            }
-            break;
+function createRender(options) {
+    const { createElement, patchProp, insert } = options;
+    function render(vnode, container) {
+        patch(null, vnode, container, null);
     }
-}
-function processComponent(n1, n2, container, parentComponent) {
-    mountComponent(n2, container, parentComponent);
-}
-function mountComponent(vnode, container, parentComponent) {
-    const instance = createComponentInstance(vnode, parentComponent);
-    setupComponent(instance);
-    setupRenderEffect(instance, vnode, container);
-}
-function setupRenderEffect(instance, initialVNode, container) {
-    effect(() => {
-        if (!instance.isMounted) {
-            const { proxy } = instance;
-            const subTree = (instance.subTree = instance.render.call(proxy));
-            // 子组件patch
-            patch(null, subTree, container, instance);
-            initialVNode.el = subTree.el;
-            instance.isMounted = true;
+    function patch(n1, n2, container, parentComponent) {
+        const { type, shapeFlag } = n2;
+        switch (type) {
+            case Fragment:
+                processFragment(n1, n2, container, parentComponent);
+                break;
+            case Text:
+                processText(n1, n2, container);
+                break;
+            default:
+                if (shapeFlag & 1 /* ShapeFlags.ELEMENT */) {
+                    processElement(n1, n2, container, parentComponent);
+                }
+                else if (shapeFlag & 2 /* ShapeFlags.STATEFUL_COMPONENT */) {
+                    processComponent(n1, n2, container, parentComponent);
+                }
+                break;
+        }
+    }
+    function processComponent(n1, n2, container, parentComponent) {
+        mountComponent(n2, container, parentComponent);
+    }
+    function mountComponent(vnode, container, parentComponent) {
+        const instance = createComponentInstance(vnode, parentComponent);
+        setupComponent(instance);
+        setupRenderEffect(instance, vnode, container);
+    }
+    function setupRenderEffect(instance, initialVNode, container) {
+        effect(() => {
+            if (!instance.isMounted) {
+                const { proxy } = instance;
+                const subTree = (instance.subTree = instance.render.call(proxy));
+                // 子组件patch
+                patch(null, subTree, container, instance);
+                initialVNode.el = subTree.el;
+                instance.isMounted = true;
+            }
+            else {
+                // update
+                const { proxy } = instance;
+                const subTree = instance.render.call(proxy);
+                instance.subTree;
+                instance.subTree = subTree;
+            }
+        });
+    }
+    function processElement(n1, n2, container, parentComponent) {
+        if (!n1) {
+            mountElement(n2, container, parentComponent);
         }
         else {
-            // update
-            const { proxy } = instance;
-            const subTree = instance.render.call(proxy);
-            instance.subTree;
-            instance.subTree = subTree;
-        }
-    });
-}
-function processElement(n1, n2, container, parentComponent) {
-    if (!n1) {
-        mountElement(n2, container, parentComponent);
-    }
-    else {
-        patchElement(n1, n2);
-    }
-}
-function mountElement(vnode, container, parentComponent) {
-    const el = (vnode.el = document.createElement(vnode.type));
-    const { children, shapeFlag } = vnode;
-    if (shapeFlag & 4 /* ShapeFlags.TEXT_CHILDREN */) {
-        el.textContent = children;
-    }
-    else if (shapeFlag & 8 /* ShapeFlags.ARRAY_CHILDREN */) {
-        mountChildren(vnode, el, parentComponent);
-    }
-    const { props } = vnode;
-    const isStartWithOn = (key) => /^on[A-Za-z]/.test(key);
-    for (const key in props) {
-        if (isStartWithOn(key)) {
-            const event = key.slice(2).toLocaleLowerCase();
-            el.addEventListener(event, props[key]);
-        }
-        else {
-            el.setAttribute(key, props[key]);
+            patchElement(n1, n2);
         }
     }
-    container.append(el);
-}
-function mountChildren(vnode, container, parentComponent) {
-    vnode.children.forEach(v => {
-        patch(null, v, container, parentComponent);
-    });
-}
-function processFragment(n1, n2, container, parentComponent) {
-    mountChildren(n2, container, parentComponent);
-}
-function processText(n1, n2, container) {
-    const { children } = n2;
-    const textNode = (n2.el = document.createTextNode(children));
-    container.append(textNode);
-}
-function patchElement(n1, n2, container) {
-    // updateElement
-    console.log(n1);
-    console.log(n2);
+    function mountElement(vnode, container, parentComponent) {
+        const el = (vnode.el = createElement(vnode.type));
+        const { children, shapeFlag } = vnode;
+        if (shapeFlag & 4 /* ShapeFlags.TEXT_CHILDREN */) {
+            el.textContent = children;
+        }
+        else if (shapeFlag & 8 /* ShapeFlags.ARRAY_CHILDREN */) {
+            mountChildren(vnode, el, parentComponent);
+        }
+        const { props } = vnode;
+        for (const key in props) {
+            patchProp(el, key, props[key]);
+        }
+        insert(el, container);
+    }
+    function mountChildren(vnode, container, parentComponent) {
+        vnode.children.forEach(v => {
+            patch(null, v, container, parentComponent);
+        });
+    }
+    function processFragment(n1, n2, container, parentComponent) {
+        mountChildren(n2, container, parentComponent);
+    }
+    function processText(n1, n2, container) {
+        const { children } = n2;
+        const textNode = (n2.el = document.createTextNode(children));
+        container.append(textNode);
+    }
+    function patchElement(n1, n2, container) {
+        // updateElement
+        console.log(n1);
+        console.log(n2);
+        const oldProps = n1.props || {};
+        const newProps = n2.props || {};
+        patchProps(oldProps, newProps);
+    }
+    function patchProps(oldProps, newProps) {
+        for (const key in newProps) {
+            oldProps[key];
+            oldProps[key];
+        }
+    }
+    return { createApp: createAppApi(render) };
 }
 
 function createVNode(type, props, children) {
@@ -486,12 +493,14 @@ function getShapeFlag(type) {
     return typeof type === 'string' ? 1 /* ShapeFlags.ELEMENT */ : 2 /* ShapeFlags.STATEFUL_COMPONENT */;
 }
 
-function createApp(root) {
-    return {
-        mount(rootContainer) {
-            const vnode = createVNode(root);
-            render(vnode, rootContainer);
-        },
+function createAppApi(render) {
+    return function createApp(root) {
+        return {
+            mount(rootContainer) {
+                const vnode = createVNode(root);
+                render(vnode, rootContainer);
+            },
+        };
     };
 }
 
@@ -535,13 +544,39 @@ function inject(key, defaultVal) {
     }
 }
 
+function createElement(type) {
+    return document.createElement(type);
+}
+function patchProp(el, key, value) {
+    if (isStartWithOn(key)) {
+        const event = key.slice(2).toLocaleLowerCase();
+        el.addEventListener(event, value);
+    }
+    else {
+        el.setAttribute(key, value);
+    }
+}
+function insert(el, parent) {
+    parent.append(el);
+}
+const renderer = createRender({
+    createElement,
+    patchProp,
+    insert,
+});
+function createApp(root) {
+    return renderer.createApp(root);
+}
+
 exports.Fragment = Fragment;
 exports.ReactiveEffect = ReactiveEffect;
 exports.Text = Text;
 exports.computed = computed;
 exports.convertToReactive = convertToReactive;
 exports.createApp = createApp;
+exports.createAppApi = createAppApi;
 exports.createComponentInstance = createComponentInstance;
+exports.createRender = createRender;
 exports.createTextVNode = createTextVNode;
 exports.createVNode = createVNode;
 exports.effect = effect;
@@ -558,8 +593,8 @@ exports.proxyRefs = proxyRefs;
 exports.reactive = reactive;
 exports.readonly = readonly;
 exports.ref = ref;
-exports.render = render;
 exports.renderSlots = renderSlots;
+exports.renderer = renderer;
 exports.setCurrentInstance = setCurrentInstance;
 exports.setupComponent = setupComponent;
 exports.shallowReadonly = shallowReadonly;
