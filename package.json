@@ -8,7 +8,7 @@
   "scripts": {
     "test": "vitest",
     "build": "rollup -c rollup.config.js",
-    "dev": "vite playground"
+    "dev": "vite playground/update"
   },
   "keywords": [],
   "devDependencies": {

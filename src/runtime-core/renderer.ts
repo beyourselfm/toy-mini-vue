@@ -1,3 +1,4 @@
+import { effect } from "../reactivity"
 import { createComponentInstance, ComponentInstance, setupComponent } from "./component"
 import { ShapeFlags } from "./ShapeFlags"
 import { ChildrenWithArray, VNode, VNodeComponent, VNodeType } from "./vnode"
@@ -6,31 +7,31 @@ export const Text = Symbol("Text")
 
 export type Container = HTMLElement
 export function render(vnode: VNode, container: Container) {
-  patch(vnode, container, null)
+  patch(null, vnode, container, null)
 }
 
-function patch(vnode: VNode, container: Container, parentComponent: ComponentInstance) {
-  const { type, shapeFlag } = vnode
+function patch(n1: VNode, n2: VNode, container: Container, parentComponent: ComponentInstance) {
+  const { type, shapeFlag } = n2
   switch (type) {
     case Fragment:
-      processFragment(vnode, container, parentComponent)
+      processFragment(n1, n2, container, parentComponent)
       break
     case Text:
-      processText(vnode, container)
+      processText(n1, n2, container)
       break
     default:
       if (shapeFlag & ShapeFlags.ELEMENT) {
-        processElement(vnode, container, parentComponent)
+        processElement(n1, n2, container, parentComponent)
       } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-        processComponent(vnode, container, parentComponent)
+        processComponent(n1, n2, container, parentComponent)
       }
       break
 
   }
 }
 
-function processComponent(vnode: VNode, container: Container, parentComponent: ComponentInstance) {
-  mountComponent(vnode, container, parentComponent)
+function processComponent(n1: VNode, n2: VNode, container: Container, parentComponent: ComponentInstance) {
+  mountComponent(n2, container, parentComponent)
 }
 function mountComponent(vnode: VNode, container: Container, parentComponent: ComponentInstance) {
   const instance = createComponentInstance(vnode, parentComponent)
@@ -39,17 +40,34 @@ function mountComponent(vnode: VNode, container: Container, parentComponent: Com
   setupRenderEffect(instance, vnode, container)
 }
 
-function setupRenderEffect(instance: ComponentInstance, vnode: VNode, container: Container) {
-  const { proxy } = instance
-  const subTree = instance.render.call(proxy)
+function setupRenderEffect(instance: ComponentInstance, initialVNode: VNode, container: Container) {
+  effect(() => {
+    if (!instance.isMounted) {
+      const { proxy } = instance
+      const subTree = (instance.subTree = instance.render.call(proxy))
+      // 子组件patch
+      patch(null, subTree, container, instance)
+      initialVNode.el = subTree.el
+      instance.isMounted = true
+    } else {
+      // update
+      const { proxy } = instance
+      const subTree = instance.render.call(proxy)
+      const prevSubTree = instance.subTree
+      instance.subTree = subTree
+    }
+  })
 
-
-  patch(subTree, container, instance)
-  vnode.el = subTree.el
 }
 
-function processElement(vnode: VNode, container: Container, parentComponent: ComponentInstance) {
-  mountElement(vnode, container, parentComponent)
+function processElement(n1: VNode, n2: VNode, container: Container, parentComponent: ComponentInstance) {
+  if (!n1) {
+    mountElement(n2, container, parentComponent)
+
+  } else {
+    patchElement(n1, n2, container)
+  }
+
 }
 
 function mountElement(vnode: VNode, container: Container, parentComponent: ComponentInstance) {
@@ -76,17 +94,24 @@ function mountElement(vnode: VNode, container: Container, parentComponent: Compo
 }
 function mountChildren(vnode: VNode, container: Container, parentComponent: ComponentInstance) {
   (vnode.children as ChildrenWithArray).forEach(v => {
-    patch(v, container, parentComponent)
+    patch(null, v, container, parentComponent)
   })
 }
 
-function processFragment(vnode: VNode, container: HTMLElement, parentComponent: ComponentInstance) {
-  mountChildren(vnode, container, parentComponent)
+function processFragment(n1: VNode, n2: VNode, container: HTMLElement, parentComponent: ComponentInstance) {
+  mountChildren(n2, container, parentComponent)
 }
 
-function processText(vnode: VNode, container: Container) {
-  const { children } = vnode
-  const textNode = (vnode.el = document.createTextNode(children as string))
+function processText(n1: VNode, n2: VNode, container: Container) {
+  const { children } = n2
+  const textNode = (n2.el = document.createTextNode(children as string))
   container.append(textNode)
+}
+
+function patchElement(n1: VNode, n2: VNode, container: HTMLElement) {
+  // updateElement
+  console.log(n1)
+  console.log(n2)
+
 }
 
