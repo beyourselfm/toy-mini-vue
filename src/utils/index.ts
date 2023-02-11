@@ -10,3 +10,4 @@ export const isStartWithOn = (key: string) => /^on[A-Za-z]/.test(key)
 export const camelize = (str: string) => str.replace(/-(\w)/g, (_, c) => {
   return c ? c.toUpperCase() : ""
 })
+export const isEmptyObject = (obj: object) => JSON.parse(JSON.stringify(obj)) === '{}'

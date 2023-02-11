@@ -1,4 +1,5 @@
 import { effect } from "../reactivity"
+import { isEmptyObject } from "../utils"
 import { createComponentInstance, ComponentInstance, setupComponent } from "./component"
 import { createAppApi } from "./createApp"
 import { ShapeFlags } from "./ShapeFlags"
@@ -126,11 +127,24 @@ export function createRender(options: RenderOptions) {
   }
 
   function patchProps(el: any, oldProps: VNodeProps, newProps: VNodeProps) {
-    for (const key in newProps) {
-      const prevProp = oldProps[key]
-      const newProp = newProps[key]
-      if (prevProp !== newProp) {
-        patchProp(el, key, prevProp, newProp)
+    if (oldProps !== newProps) {
+      for (const key in newProps) {
+        //
+        const prevProp = oldProps[key]
+        const newProp = newProps[key]
+        if (prevProp !== newProp) {
+          patchProp(el, key, prevProp, newProp)
+        }
+      }
+    }
+
+
+    if (!isEmptyObject(oldProps)) {
+      // remove oldProp
+      for (const key in oldProps) {
+        if (!(key in newProps)) {
+          patchProp(el, key, oldProps[key], null)
+        }
       }
     }
   }

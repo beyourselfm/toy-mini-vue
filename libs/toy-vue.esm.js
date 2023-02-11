@@ -461,6 +461,12 @@ function createRender(options) {
                 patchProp(el, key, prevProp, newProp);
             }
         }
+        // remove oldProp
+        for (const key in oldProps) {
+            if (!(key in newProps)) {
+                patchProp(el, key, oldProps[key], null);
+            }
+        }
     }
     return { createApp: createAppApi(render) };
 }
