@@ -49,18 +49,16 @@ export function createComponentInstance<Node = AnyObject>(
 }
 
 export function setupComponent(instance: ComponentInstance) {
-  initProxy(instance);
-  initProps(instance, instance.vnode.props);
-  initSlots(instance, instance.vnode.children);
-  setupStatefulComponent(instance);
-}
-function initProxy(instance: ComponentInstance) {
   instance.proxy = new Proxy(
     {
       _: instance,
     },
     publicInstanceProxyHandler
   );
+
+  initProps(instance, instance.vnode.props);
+  initSlots(instance, instance.vnode.children);
+  setupStatefulComponent(instance);
 }
 function setupStatefulComponent(instance: ComponentInstance) {
   const Component = instance.type;

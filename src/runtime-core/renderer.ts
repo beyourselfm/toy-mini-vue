@@ -89,7 +89,6 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
   ) {
     effect(() => {
       if (!instance.isMounted) {
-        debugger;
         const { proxy } = instance;
         const subTree = (instance.subTree = instance.render.call(proxy));
         // 子组件patch
@@ -131,7 +130,7 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     const { children, shapeFlag ,props} = vnode;
 
     if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
-      setText(container, children as string);
+      setText(el, children as string);
     } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
       mountChildren(children as VNode<Node>[], el, parentComponent);
     }
@@ -211,7 +210,7 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     const oldProps = n1.props || {};
     const newProps = n2.props || {};
     const el = (n2.el = n1.el);
-    patchChildren(n1, n2, container, parentComponent);
+    patchChildren(n1, n2, el, parentComponent);
     patchProps(el, oldProps, newProps);
   }
 

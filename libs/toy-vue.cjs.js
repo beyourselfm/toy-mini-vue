@@ -319,15 +319,12 @@ function createComponentInstance(vnode, parent) {
     return instance;
 }
 function setupComponent(instance) {
-    initProxy(instance);
-    initProps(instance, instance.vnode.props);
-    initSlots(instance, instance.vnode.children);
-    setupStatefulComponent(instance);
-}
-function initProxy(instance) {
     instance.proxy = new Proxy({
         _: instance,
     }, publicInstanceProxyHandler);
+    initProps(instance, instance.vnode.props);
+    initSlots(instance, instance.vnode.children);
+    setupStatefulComponent(instance);
 }
 function setupStatefulComponent(instance) {
     const Component = instance.type;
@@ -404,7 +401,6 @@ function createRender(options) {
     function setupRenderEffect(instance, initialVNode, container) {
         effect(() => {
             if (!instance.isMounted) {
-                debugger;
                 const { proxy } = instance;
                 const subTree = (instance.subTree = instance.render.call(proxy));
                 // 子组件patch
@@ -432,14 +428,13 @@ function createRender(options) {
     }
     function mountElement(vnode, container, parentComponent) {
         const el = (vnode.el = createElement(vnode.type));
-        const { children, shapeFlag } = vnode;
+        const { children, shapeFlag, props } = vnode;
         if (shapeFlag & 4 /* ShapeFlags.TEXT_CHILDREN */) {
-            setText(container, children);
+            setText(el, children);
         }
         else if (shapeFlag & 8 /* ShapeFlags.ARRAY_CHILDREN */) {
             mountChildren(children, el, parentComponent);
         }
-        const { props } = vnode;
         for (const key in props) {
             patchProp(el, key, null, props[key]);
         }
@@ -493,7 +488,7 @@ function createRender(options) {
         const oldProps = n1.props || {};
         const newProps = n2.props || {};
         const el = (n2.el = n1.el);
-        patchChildren(n1, n2, container, parentComponent);
+        patchChildren(n1, n2, el, parentComponent);
         patchProps(el, oldProps, newProps);
     }
     function patchProps(el, oldProps, newProps) {
@@ -621,7 +616,7 @@ function patchProp(el, key, value, nextVal) {
     }
 }
 function insert(el, parent) {
-    parent.insertBefore(el, null);
+    parent.appendChild(el);
 }
 function remove(el) {
     const parent = el.parentNode;
