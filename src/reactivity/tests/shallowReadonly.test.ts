@@ -1,11 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
-import { isReactive, isReadonly, readonly, shallowReadonly } from "../reactive";
+import { describe, expect, it, vi } from 'vitest'
+import { isReactive, isReadonly, readonly, shallowReadonly } from '../reactive'
 
 describe('shallowReadonly', () => {
-  it("", () => {
+  it('', () => {
     const original = {
       nested: {
-        foo: 1
+        foo: 1,
       },
     }
 
@@ -17,7 +17,7 @@ describe('shallowReadonly', () => {
   it('warn when call set', () => {
     console.warn = vi.fn()
     const user = shallowReadonly({
-      age: 10
+      age: 10,
     })
     //@ts-ignore
     user.age = 11

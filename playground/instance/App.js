@@ -3,25 +3,25 @@ import {
   getCurrentInstance,
   h,
   provide,
-} from "../../libs/toy-vue.esm";
-import { Test } from "./Test";
-window.self = null;
+} from '../../libs/toy-vue.esm'
+import { Test } from './Test'
+window.self = null
 export const App = {
   render() {
-    window.self = this;
+    window.self = this
     return h(
-      "div",
+      'div',
       {
-        name: "app",
-        id: "root",
+        name: 'app',
+        id: 'root',
       },
       [h(Test, {})]
-    );
+    )
   },
   setup() {
-    console.log(getCurrentInstance());
+    console.log(getCurrentInstance())
     return {
       foo: 1,
-    };
+    }
   },
-};
+}

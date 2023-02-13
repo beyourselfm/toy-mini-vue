@@ -4,25 +4,25 @@ import {
   renderSlots,
   getCurrentInstance,
   inject,
-} from "../../libs/toy-vue.esm.js";
+} from '../../libs/toy-vue.esm.js'
 export const Test = {
-  name: "Test",
+  name: 'Test',
   setup(props, { emit }) {
     const add = () => {
-      emit("add", 1, 2);
-      emit("foo-bar");
-      return;
-    };
-    return { add };
+      emit('add', 1, 2)
+      emit('foo-bar')
+      return
+    }
+    return { add }
   },
   render() {
     const btn = h(
-      "button",
+      'button',
       {
         onClick: this.add,
       },
-      "emit"
-    );
-    return h("div", {}, [btn]);
+      'emit'
+    )
+    return h('div', {}, [btn])
   },
-};
+}

@@ -1,17 +1,17 @@
-import { hasChanged, isObject } from "../utils"
-import { EffectFns, isTracking, trackEffects, triggerEffects } from "./effect"
-import { reactive } from "./reactive"
+import { hasChanged, isObject } from '../utils'
+import { EffectFns, isTracking, trackEffects, triggerEffects } from './effect'
+import { reactive } from './reactive'
 
 type Ref<T = any> = {
   value: T
 }
-class RefImpl<T = any>{
+class RefImpl<T = any> {
   private _value: T
   private dep: EffectFns
   private _rawValue: T
   public __is_ref: boolean
   constructor(value: T) {
-    this._rawValue = value;
+    this._rawValue = value
     this._value = convertToReactive(value)
     this.dep = new Set()
     this.__is_ref = true
@@ -52,12 +52,11 @@ export function proxyRefs(ref: any): any {
     },
     set(target, key, newValue, receiver) {
       if (isRef(target[key]) && !isRef(newValue)) {
-        target[key].value = newValue;
+        target[key].value = newValue
         return true
       } else {
         return Reflect.set(target, key, newValue, receiver)
       }
-    }
+    },
   })
-
 }

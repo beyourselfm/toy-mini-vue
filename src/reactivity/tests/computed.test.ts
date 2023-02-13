@@ -1,12 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
-import { computed } from "../computed";
-import { reactive } from "../reactive";
+import { describe, expect, it, vi } from 'vitest'
+import { computed } from '../computed'
+import { reactive } from '../reactive'
 
-describe("computed", () => {
-  it("", () => {
-
+describe('computed', () => {
+  it('', () => {
     const user = reactive({
-      age: 1
+      age: 1,
     })
     const age = computed(() => {
       return user.age
@@ -14,10 +13,9 @@ describe("computed", () => {
     expect(age.value).toBe(1)
   })
 
-  it("computed lazily", () => {
-
+  it('computed lazily', () => {
     const foo = reactive({
-      foo: 1
+      foo: 1,
     })
     const getter = vi.fn(() => {
       return foo.foo
@@ -37,6 +35,5 @@ describe("computed", () => {
 
     computedValue.value
     expect(getter).toHaveBeenCalledTimes(2)
-
   })
 })

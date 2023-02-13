@@ -4,12 +4,12 @@ import {
   createVNode,
   VNodeProps,
   VNodeType,
-} from "./vnode";
+} from './vnode'
 
 export function h<Node = AnyObject>(
   type: VNodeType,
   props?: VNodeProps,
   children?: Children<Node>
 ) {
-  return createVNode(type, props, children);
+  return createVNode(type, props, children)
 }

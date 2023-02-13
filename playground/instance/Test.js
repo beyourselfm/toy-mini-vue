@@ -4,19 +4,19 @@ import {
   renderSlots,
   getCurrentInstance,
   inject,
-} from "../../libs/toy-vue.esm";
+} from '../../libs/toy-vue.esm'
 export const Test = {
-  name: "Test",
+  name: 'Test',
   setup(props, { emit }) {
     // shallowReadonly
     const add = () => {
-      emit("add", 1, 2);
-      emit("foo-bar");
-      return;
-    };
-    console.log(getCurrentInstance());
+      emit('add', 1, 2)
+      emit('foo-bar')
+      return
+    }
+    console.log(getCurrentInstance())
   },
   render() {
-    return h("div", {}, "asd");
+    return h('div', {}, 'asd')
   },
-};
+}

@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest";
-import { isProxy, isReactive, reactive } from "../reactive";
+import { describe, expect, it } from 'vitest'
+import { isProxy, isReactive, reactive } from '../reactive'
 
-describe("reactive", () => {
-  it("", () => {
+describe('reactive', () => {
+  it('', () => {
     const obj = { a: 1 }
     const proxy = reactive(obj)
     expect(proxy).toEqual(obj)
@@ -17,12 +17,12 @@ describe("reactive", () => {
     expect(isReactive(obj)).toBe(false)
     expect(isProxy(proxy)).toBe(true)
   })
-  it("nested reactive", () => {
+  it('nested reactive', () => {
     const original = {
       nested: {
-        foo: 1
+        foo: 1,
       },
-      array: [{ bar: 2 }]
+      array: [{ bar: 2 }],
     }
 
     const observed = reactive(original)

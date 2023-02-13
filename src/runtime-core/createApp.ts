@@ -1,20 +1,20 @@
-import { ComponentInstance } from "./component";
-import { AnyObject, Component, createVNode, VNode, VNodeType } from "./vnode";
+import { ComponentInstance } from './component'
+import { AnyObject, Component, createVNode, VNode, VNodeType } from './vnode'
 
-export type Nullable<T> = T | null | undefined;
+export type Nullable<T> = T | null | undefined
 export type RenderFunc<Node> = (
   vnode: VNode<Node>,
   container: Node,
   parentComponent: Nullable<ComponentInstance>
-) => void;
+) => void
 
 export function createAppApi<Node = AnyObject>(render: RenderFunc<Node>) {
   return function createApp(root: Component) {
     return {
       mount(rootContainer: Node) {
-        const vnode = createVNode<Node>(root);
-        render(vnode, rootContainer, null);
+        const vnode = createVNode<Node>(root)
+        render(vnode, rootContainer, null)
       },
-    };
-  };
+    }
+  }
 }

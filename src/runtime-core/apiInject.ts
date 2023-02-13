@@ -1,7 +1,6 @@
-import { getCurrentInstance } from "./component";
+import { getCurrentInstance } from './component'
 
 export function provide(key: string, val: any) {
-
   const currentInstance = getCurrentInstance()
 
   if (currentInstance) {
@@ -16,7 +15,6 @@ export function provide(key: string, val: any) {
   }
 }
 
-
 export function inject(key: string, defaultVal?: any) {
   const currentInstance = getCurrentInstance()
   if (currentInstance) {
@@ -28,7 +26,5 @@ export function inject(key: string, defaultVal?: any) {
     } else if (defaultVal) {
       return defaultVal
     }
-
   }
-
 }

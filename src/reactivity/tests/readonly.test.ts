@@ -1,8 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
-import { isProxy, isReactive, isReadonly, readonly } from "../reactive";
+import { describe, expect, it, vi } from 'vitest'
+import { isProxy, isReactive, isReadonly, readonly } from '../reactive'
 
 describe('readonly', () => {
-  it("", () => {
+  it('', () => {
     const original = { foo: 1 }
     const readonlyObj = readonly(original)
     expect(readonlyObj).not.toBe(original)
@@ -13,21 +13,20 @@ describe('readonly', () => {
     expect(isProxy(readonlyObj)).toBe(true)
   })
   it('warn when call set', () => {
-
     console.warn = vi.fn()
     const user = readonly({
-      age: 10
+      age: 10,
     })
     //@ts-ignore
     user.age = 11
     expect(console.warn).toBeCalled()
   })
-  it("nested reactive", () => {
+  it('nested reactive', () => {
     const original = {
       nested: {
-        foo: 1
+        foo: 1,
       },
-      array: [{ bar: 2 }]
+      array: [{ bar: 2 }],
     }
 
     const observed = readonly(original)

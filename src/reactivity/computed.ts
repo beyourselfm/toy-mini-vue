@@ -1,4 +1,4 @@
-import { ReactiveEffect } from "./effect"
+import { ReactiveEffect } from './effect'
 
 class ComputedIMpl {
   private _getter: any
@@ -13,7 +13,6 @@ class ComputedIMpl {
         this._dirty = true
       }
     })
-
   }
   get value() {
     if (this._dirty) {

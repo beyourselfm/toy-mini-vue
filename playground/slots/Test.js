@@ -4,14 +4,14 @@ import {
   renderSlots,
   getCurrentInstance,
   inject,
-} from "../../libs/toy-vue.esm";
+} from '../../libs/toy-vue.esm'
 export const Test = {
-  name: "Test",
+  name: 'Test',
   setup(props, { emit }) {},
   render() {
-    return h("div", {}, [
-      renderSlots(this.$slots, "headers", "this is a slot props"),
-      renderSlots(this.$slots, "footer"),
-    ]);
+    return h('div', {}, [
+      renderSlots(this.$slots, 'headers', 'this is a slot props'),
+      renderSlots(this.$slots, 'footer'),
+    ])
   },
-};
+}

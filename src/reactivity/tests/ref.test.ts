@@ -1,17 +1,17 @@
-import { describe, expect, it } from "vitest";
-import { effect } from "../effect";
-import { reactive } from "../reactive";
-import { isRef, proxyRefs, ref, unRef } from "../ref";
+import { describe, expect, it } from 'vitest'
+import { effect } from '../effect'
+import { reactive } from '../reactive'
+import { isRef, proxyRefs, ref, unRef } from '../ref'
 
-describe("ref", () => {
-  it("", () => {
+describe('ref', () => {
+  it('', () => {
     const a = ref(1)
     expect(a.value).toBe(1)
   })
-  it("reactive", () => {
+  it('reactive', () => {
     const a = ref(1)
     let result
-    let calls = 0;
+    let calls = 0
     effect(() => {
       calls++
       result = a.value
@@ -22,9 +22,9 @@ describe("ref", () => {
     expect(calls).toBe(2)
     expect(result).toBe(2)
   })
-  it("nested reactive", () => {
+  it('nested reactive', () => {
     const val = ref({
-      count: 1
+      count: 1,
     })
     let result
     effect(() => {
@@ -34,31 +34,31 @@ describe("ref", () => {
     val.value.count = 2
     expect(result).toBe(2)
   })
-  it("isRef", () => {
+  it('isRef', () => {
     const a = ref(1)
     const user = reactive({
-      foo: 1
+      foo: 1,
     })
     expect(isRef(a)).toBe(true)
     expect(isRef(1)).toBe(false)
     expect(isRef(user)).toBe(false)
   })
 
-  it("unRef", () => {
+  it('unRef', () => {
     const a = ref(1)
     expect(unRef(a)).toBe(1)
     expect(unRef(1)).toBe(1)
   })
 
-  it("proxyRefs", () => {
+  it('proxyRefs', () => {
     const user = {
       age: ref(10),
-      name: "1"
+      name: '1',
     }
     const proxyRef = proxyRefs(user)
     expect(user.age.value).toBe(10)
     expect(proxyRef.age).toBe(10)
-    expect(proxyRef.name).toBe("1")
+    expect(proxyRef.name).toBe('1')
 
     proxyRef.age = 20
     expect(proxyRef.age).toBe(20)

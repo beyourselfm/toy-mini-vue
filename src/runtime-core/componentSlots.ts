@@ -1,5 +1,5 @@
-import { ComponentInstance } from "./component";
-import { ShapeFlags } from "./ShapeFlags";
+import { ComponentInstance } from './component'
+import { ShapeFlags } from './ShapeFlags'
 
 export function initSlots(instance: ComponentInstance, children: any) {
   const { vnode } = instance

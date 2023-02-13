@@ -1,11 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
-import { effect, stop } from "../effect"
-import { reactive } from "../reactive";
+import { describe, expect, it, vi } from 'vitest'
+import { effect, stop } from '../effect'
+import { reactive } from '../reactive'
 
-describe("effect", () => {
-  it("", () => {
+describe('effect', () => {
+  it('', () => {
     const obj = reactive({
-      a: 1
+      a: 1,
     })
     let foo
     effect(() => {
@@ -15,11 +15,11 @@ describe("effect", () => {
     obj.a++
     expect(foo).toBe(3)
   })
-  it("return runner when call effect function", () => {
+  it('return runner when call effect function', () => {
     let foo = 1
     const runner = effect(() => {
-      foo++;
-      return "result"
+      foo++
+      return 'result'
     })
     expect(foo).toBe(2)
     const result = runner()
@@ -33,10 +33,12 @@ describe("effect", () => {
     const scheduler = vi.fn(() => {
       run = runner
     })
-    const runner = effect(() => {
-      result = foo.foo
-    },
-      { scheduler })
+    const runner = effect(
+      () => {
+        result = foo.foo
+      },
+      { scheduler }
+    )
     expect(scheduler).not.toHaveBeenCalled()
     expect(result).toBe(1)
     foo.foo++
@@ -45,7 +47,7 @@ describe("effect", () => {
     run && run()
     expect(result).toBe(2)
   })
-  it("stop", () => {
+  it('stop', () => {
     let result: any
     const obj = reactive({ foo: 1 })
     const runner = effect(() => {
@@ -61,17 +63,20 @@ describe("effect", () => {
     runner()
     expect(result).toBe(3)
   })
-  it("onStop", () => {
+  it('onStop', () => {
     const obj = reactive({
-      foo: 1
+      foo: 1,
     })
     const onStop = vi.fn()
     let result
-    const runner = effect(() => {
-      result = obj.foo
-    }, {
-      onStop
-    })
+    const runner = effect(
+      () => {
+        result = obj.foo
+      },
+      {
+        onStop,
+      }
+    )
     stop(runner)
     expect(onStop).toBeCalledTimes(1)
   })

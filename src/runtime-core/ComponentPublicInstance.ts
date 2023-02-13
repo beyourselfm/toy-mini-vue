@@ -1,11 +1,10 @@
-import { hasOwn } from "../utils"
-import { ComponentInstance } from "./component"
+import { hasOwn } from '../utils'
+import { ComponentInstance } from './component'
 
 const publicPropertiesMap = {
   $el: (instance: ComponentInstance) => instance.vnode.el,
   $data: (instance: ComponentInstance) => instance.setupState,
-  $slots: (instance: ComponentInstance) => instance.slots
-
+  $slots: (instance: ComponentInstance) => instance.slots,
 }
 
 export const publicInstanceProxyHandler = {
@@ -21,6 +20,5 @@ export const publicInstanceProxyHandler = {
     if (getter) {
       return getter(instance)
     }
-  }
+  },
 }
-

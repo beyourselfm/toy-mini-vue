@@ -38,7 +38,6 @@ export function trigger(target: Object, key: Key) {
   let dep = depsMap?.get(key)
   if (!dep) return
   triggerEffects(dep)
-
 }
 
 export function triggerEffects(dep: EffectFns) {
@@ -98,12 +97,10 @@ function cleanupEffect(effect: ReactiveEffect) {
     dep.delete(effect)
   })
   effect.deps.length = 0
-
 }
 export function stop(runner: FunctionWithEffect) {
   if (!runner.effect) return
   runner.effect?.stop()
-
 }
 export function effect(fn: Function, options: EffectOptions = {}) {
   const { scheduler } = options

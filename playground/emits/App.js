@@ -3,33 +3,33 @@ import {
   getCurrentInstance,
   h,
   provide,
-} from "../../libs/toy-vue.esm.js";
-import { Test } from "./Test";
-window.self = null;
+} from '../../libs/toy-vue.esm.js'
+import { Test } from './Test'
+window.self = null
 export const App = {
   render() {
-    window.self = this;
+    window.self = this
     return h(
-      "div",
+      'div',
       {
-        name: "app",
-        id: "root",
+        name: 'app',
+        id: 'root',
       },
       [
         h(Test, {
           onAdd(...args) {
-            console.log(...args);
+            console.log(...args)
           },
           onFooBar() {
-            console.log("foobar");
+            console.log('foobar')
           },
         }),
       ]
-    );
+    )
   },
   setup() {
     return {
       foo: 1,
-    };
+    }
   },
-};
+}

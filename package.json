@@ -2,7 +2,6 @@
   "name": "toy-vue",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
   "main": "libs/toy-vue.cjs.js",
   "module": "libs/toy-vue.esm.js",
   "scripts": {
