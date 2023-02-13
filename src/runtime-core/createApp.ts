@@ -1,13 +1,20 @@
-import { createVNode, VNode, VNodeType } from "./vnode"
-export function createAppApi(render) {
+import { ComponentInstance } from "./component";
+import { AnyObject, Component, createVNode, VNode, VNodeType } from "./vnode";
 
-  return function createApp(root: VNodeType) {
+export type Nullable<T> = T | null | undefined;
+export type RenderFunc<Node> = (
+  vnode: VNode<Node>,
+  container: Node,
+  parentComponent: Nullable<ComponentInstance>
+) => void;
+
+export function createAppApi<Node = AnyObject>(render: RenderFunc<Node>) {
+  return function createApp(root: Component) {
     return {
-      mount(rootContainer: HTMLElement) {
-        const vnode = createVNode(root)
-        render(vnode, rootContainer)
+      mount(rootContainer: Node) {
+        const vnode = createVNode<Node>(root);
+        render(vnode, rootContainer, null);
       },
-    }
-  }
-
+    };
+  };
 }

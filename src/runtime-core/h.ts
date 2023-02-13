@@ -1,5 +1,15 @@
-import { Children, createVNode, VNodeProps, VNodeType } from "./vnode";
+import {
+  AnyObject,
+  Children,
+  createVNode,
+  VNodeProps,
+  VNodeType,
+} from "./vnode";
 
-export function h(type: VNodeType, props?: VNodeProps, children?: Children) {
-  return createVNode(type, props, children)
+export function h<Node = AnyObject>(
+  type: VNodeType,
+  props?: VNodeProps,
+  children?: Children<Node>
+) {
+  return createVNode(type, props, children);
 }

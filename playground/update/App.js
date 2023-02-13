@@ -17,14 +17,14 @@ export const App = {
         {
           onClick: this.handleChangeVal,
         },
-        this.val.foo
+        this.val.foo ? "is" : "not"
       ),
       h(
         "button",
         {
           onClick: this.handleChangeVal2,
         },
-        this.val.foo
+        this.val.foo ? "is" : "not"
       ),
       h(
         "button",
