@@ -1,5 +1,5 @@
 import { effect } from '../reactivity'
-import { isEmptyObject } from '../utils'
+import { getSequence, isEmptyObject } from '../utils'
 import {
   createComponentInstance,
   ComponentInstance,
@@ -15,7 +15,7 @@ export const Text = Symbol('Text')
 export type RenderOptions<Node> = {
   createElement: (type: string) => Node
   patchProp: (n: Node, key: string, oldVal: any, newVal: any) => void
-  insert: (n: Node, container: Node) => void
+  insert: (n: Node, container: Node, anchor?: Node) => void
   setText: (n: Node, text: string) => void
   remove: (n: Node) => void
 }
@@ -35,7 +35,8 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     n1: Nullable<VNode<Node>>,
     n2: VNode<Node>,
     container: Node,
-    parentComponent?: ComponentInstance
+    parentComponent?: ComponentInstance,
+    anchor?: Node
   ) {
     const { type, shapeFlag } = n2
 
@@ -48,7 +49,7 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
         break
       default:
         if (shapeFlag & ShapeFlags.ELEMENT) {
-          processElement(n1, n2, container, parentComponent)
+          processElement(n1, n2, container, parentComponent, anchor)
         } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
           processComponent(n1, n2, container, parentComponent)
         }
@@ -111,19 +112,21 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     n1: Nullable<VNode<Node>>,
     n2: VNode<Node>,
     container: Node,
-    parentComponent?: ComponentInstance
+    parentComponent?: ComponentInstance,
+    anchor?: Node
   ) {
     if (!n1) {
-      mountElement(n2, container, parentComponent)
+      mountElement(n2, container, parentComponent, anchor)
     } else {
-      patchElement(n1, n2, container, parentComponent)
+      patchElement(n1, n2, container, parentComponent, anchor)
     }
   }
 
   function mountElement(
     vnode: VNode<Node>,
     container: Node,
-    parentComponent?: ComponentInstance
+    parentComponent?: ComponentInstance,
+    anchor?: Node
   ) {
     const el = (vnode.el = createElement(vnode.type as string))
 
@@ -137,15 +140,16 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     for (const key in props) {
       patchProp(el, key, null, props[key])
     }
-    insert(el, container)
+    insert(el, container, anchor)
   }
   function mountChildren(
     children: VNode<Node>[],
     container: Node,
-    parentComponent: ComponentInstance
+    parentComponent: ComponentInstance,
+    anchor?: Node
   ) {
     children.forEach((v) => {
-      patch(null, v, container, parentComponent)
+      patch(null, v, container, parentComponent, anchor)
     })
   }
 
@@ -168,7 +172,8 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     n1: Nullable<VNode<Node>>,
     n2: VNode<Node>,
     container: Node,
-    parentComponent?: ComponentInstance
+    parentComponent?: ComponentInstance,
+    anchor?: Node
   ) {
     const prevShapeFlag = n1.shapeFlag
     const nextShapeFlag = n2.shapeFlag
@@ -188,7 +193,12 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
       // text/array -> array
       if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
         setText(prevEl, '')
-        mountChildren(nextChildren as VNode<Node>[], prevEl, parentComponent)
+        mountChildren(
+          nextChildren as VNode<Node>[],
+          prevEl,
+          parentComponent,
+          anchor
+        )
       } else {
         // array -> array
         patchKeyChildren(
@@ -204,28 +214,140 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
   function patchKeyChildren(
     prevChildren: VNode<Node>[],
     nextChildren: VNode<Node>[],
-    container:Node,
-    parentComponent:ComponentInstance
+    container: Node,
+    parentComponent: ComponentInstance
   ) {
     let i = 0
     let prevLength = prevChildren.length - 1
     let nextLength = nextChildren.length - 1
+    let prevRightIndex = prevLength
+    let nextRightIndex = nextLength
 
-    function isSameVnodeType(n1:VNode<Node>,n2:VNode<Node>) {
+    function isSameVnodeType(n1: VNode<Node>, n2: VNode<Node>) {
       return n1.type === n2.type && n1.key === n2.key
     }
 
-    while (i <= prevLength && i <= nextLength) {
+    // left
+    while (i <= prevRightIndex && i <= nextRightIndex) {
       const n1 = prevChildren[i]
       const n2 = nextChildren[i]
       if (isSameVnodeType(n1, n2)) {
         patch(n1, n2, container, parentComponent)
-      }else{
-        break;
+      } else {
+        break
       }
-      i ++
+      i++
+    }
+
+    // right
+    while (i <= prevRightIndex && i <= nextRightIndex) {
+      const n1 = prevChildren[prevRightIndex]
+      const n2 = nextChildren[nextRightIndex]
+      if (isSameVnodeType(n1, n2)) {
+        patch(n1, n2, container, parentComponent)
+      } else {
+        break
+      }
+      prevRightIndex--
+      nextRightIndex--
+    }
+
+    // new vnode list > old vnode list
+    if (i > prevRightIndex) {
+      if (i <= nextRightIndex) {
+        const nextPos = nextRightIndex + 1
+        const anchor = nextPos < nextLength ? nextChildren[nextPos].el : null
+        while (i <= nextRightIndex) {
+          patch(null, nextChildren[i], container, parentComponent, anchor)
+          i++
+        }
+      }
+    } else if (i > nextRightIndex) {
+      // old vnode list > new vnode list
+      while (i <= prevRightIndex) {
+        remove(prevChildren[i].el)
+        i++
+      }
+    } else {
+      // 中间
+      let prevLeftIndex = i
+      let nextLeftIndex = i
+      let moved = false
+      let maxIndex = 0
+
+      const nextIndexMap = new Map()
+
+      const needPatch = nextRightIndex - nextLeftIndex + 1
+      let patched = 0
+
+      const nextIndexInPrevIndexMap = new Array(needPatch).fill(-1)
+
+      for (let i = nextLeftIndex; i <= nextRightIndex; i++) {
+        const nextChild = nextChildren[i]
+        nextIndexMap.set(nextChild.key, i)
+      }
+
+      for (let i = prevLeftIndex; i <= prevRightIndex; i++) {
+        const prevChild = prevChildren[i]
+        if (patched >= needPatch) {
+          remove(prevChild.el)
+          continue
+        }
+
+        let nextIndex
+        if (!prevChild.key) {
+          nextIndex = nextIndexMap.get(prevChild.key)
+        } else {
+          for (let j = nextLeftIndex; j <= nextRightIndex; j++) {
+            const nextChild = nextChildren[j]
+            if (isSameVnodeType(prevChild, nextChild)) {
+              nextIndex = j
+              break
+            }
+          }
+        }
+        if (!nextIndex) {
+          remove(prevChild.el)
+        } else {
+          // index -> new position
+          // value -> prev position
+          if (nextIndex > maxIndex) {
+            maxIndex = nextIndex
+          } else {
+            moved = true
+          }
+          nextIndexInPrevIndexMap[nextIndex - nextLeftIndex] = i + 1
+          patch(prevChild, nextChildren[nextIndex], container, parentComponent)
+          patched++
+        }
+      }
+
+      const sequence = moved ? getSequence(nextIndexInPrevIndexMap) : []
+
+      // 倒叙
+      let sequenceIndex = sequence.length - 1
+      for (let i = needPatch - 1; i >= 0; i--) {
+        const nextPos = i + nextLeftIndex
+        const nextChild = nextChildren[nextPos]
+        const anchor =
+          nextPos + 1 < nextLength ? nextChildren[nextPos + 1].el : null
+
+        if (nextIndexInPrevIndexMap[i] === -1) {
+          // === -1 create new node
+          patch(null, nextChild, container, parentComponent, anchor)
+        } else if (moved) {
+          if (sequenceIndex < 0 || i !== sequence[sequenceIndex]) {
+            // 这时候的真实 Dom 还是 prevChild
+            console.log('need move')
+            insert(nextChild.el, container, anchor)
+          } else {
+            sequenceIndex--
+          }
+        }
+      }
     }
   }
+
   function unmountChildren(children: VNode<Node>[]) {
     for (let i = 0; i < children.length; i++) {
       const el = children[i].el
@@ -237,13 +359,14 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     n1: Nullable<VNode<Node>>,
     n2: VNode<Node>,
     container: Node,
-    parentComponent?: ComponentInstance
+    parentComponent?: ComponentInstance,
+    anchor?: Node
   ) {
     // updateElement
     const oldProps = n1.props || {}
     const newProps = n2.props || {}
     const el = (n2.el = n1.el)
-    patchChildren(n1, n2, el, parentComponent)
+    patchChildren(n1, n2, el, parentComponent, anchor)
     patchProps(el, oldProps, newProps)
   }
 
