@@ -5,6 +5,7 @@ const publicPropertiesMap = {
   $el: (instance: ComponentInstance) => instance.vnode.el,
   $data: (instance: ComponentInstance) => instance.setupState,
   $slots: (instance: ComponentInstance) => instance.slots,
+  $props: (instance: ComponentInstance) => instance.props,
 }
 
 export const publicInstanceProxyHandler = {

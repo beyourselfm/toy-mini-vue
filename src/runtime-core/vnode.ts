@@ -29,7 +29,7 @@ export type VNode<Node = AnyObject> = {
   children: Children<Node>
   shapeFlag: ShapeFlags
   key?: any
-  component: ComponentInstance
+  instance: ComponentInstance
 }
 
 export function createVNode<Node = AnyObject>(
@@ -43,7 +43,7 @@ export function createVNode<Node = AnyObject>(
     children,
     el: null,
     shapeFlag: getShapeFlag(type),
-    component: null,
+    instance: null,
     key: props && props.key,
   }
   if (isString(children)) {

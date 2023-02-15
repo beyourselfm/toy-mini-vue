@@ -1,4 +1,9 @@
-import { computed, proxyRefs, shallowReadonly } from '../reactivity'
+import {
+  computed,
+  FunctionWithEffect,
+  proxyRefs,
+  shallowReadonly,
+} from '../reactivity'
 import { isObject } from '../utils'
 import { Emit, emit } from './componentEmit'
 import { initProps } from './componentProps'
@@ -6,8 +11,9 @@ import { publicInstanceProxyHandler } from './ComponentPublicInstance'
 import { initSlots } from './componentSlots'
 import { AnyObject, Render, Slots, VNode, Component, VNodeProps } from './vnode'
 
-export type ComponentInstance<ELement = AnyObject> = {
-  vnode: VNode<ELement>
+export type ComponentInstance<Node = AnyObject> = {
+  vnode: VNode<Node>
+  next?: VNode<Node>
   type: Component
   parent: ComponentInstance
   setupState?: AnyObject
@@ -15,10 +21,12 @@ export type ComponentInstance<ELement = AnyObject> = {
   proxy?: AnyObject
   props?: VNodeProps
   emit?: Emit
-  subTree?: VNode<ELement>
+  subTree?: VNode<Node>
   slots?: Slots
   isMounted: boolean
   render: Render
+  update?: FunctionWithEffect
+  instance?: ComponentInstance
 }
 export function createComponentInstance<Node = AnyObject>(
   vnode: VNode<Node>,
@@ -35,6 +43,7 @@ export function createComponentInstance<Node = AnyObject>(
     slots: {},
     provides: parent ? parent.provides : {},
     isMounted: false,
+    update: () => {},
   }
   instance.emit = emit.bind(null, instance)
 

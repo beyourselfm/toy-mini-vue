@@ -310,6 +310,7 @@ const publicPropertiesMap = {
     $el: (instance) => instance.vnode.el,
     $data: (instance) => instance.setupState,
     $slots: (instance) => instance.slots,
+    $props: (instance) => instance.props,
 };
 const publicInstanceProxyHandler = {
     get({ _: instance }, key) {
@@ -355,6 +356,7 @@ function createComponentInstance(vnode, parent) {
         slots: {},
         provides: parent ? parent.provides : {},
         isMounted: false,
+        update: () => { },
     };
     instance.emit = emit.bind(null, instance);
     return instance;
@@ -436,14 +438,38 @@ function createRender(options) {
         if (!n1) {
             mountComponent(n2, container, parentComponent);
         }
+        else {
+            patchComponent(n1, n2);
+        }
+    }
+    function patchComponent(n1, n2) {
+        const instance = (n2.instance = n1.instance);
+        if (shouldPatchComponent(n1, n2)) {
+            instance.next = n2;
+            instance.update();
+        }
+        else {
+            n2.el = n1.el;
+            instance.vnode = n2;
+        }
+    }
+    function shouldPatchComponent(n1, n2) {
+        const { props: prevProps } = n1;
+        const { props: nextProps } = n2;
+        for (const key in nextProps) {
+            if (nextProps[key] !== prevProps[key]) {
+                return true;
+            }
+        }
+        return false;
     }
     function mountComponent(vnode, container, parentComponent) {
-        const instance = createComponentInstance(vnode, parentComponent);
+        const instance = (vnode.instance = createComponentInstance(vnode, parentComponent));
         setupComponent(instance);
         setupRenderEffect(instance, vnode, container);
     }
     function setupRenderEffect(instance, initialVNode, container) {
-        effect(() => {
+        instance.update = effect(() => {
             if (!instance.isMounted) {
                 const { proxy } = instance;
                 const subTree = (instance.subTree = instance.render.call(proxy));
@@ -454,13 +480,23 @@ function createRender(options) {
             }
             else {
                 // update
-                const { proxy } = instance;
+                const { proxy, next, vnode } = instance;
+                if (next) {
+                    next.el = vnode.el;
+                    patchComponentPreRender(instance, next);
+                }
                 const subTree = instance.render.call(proxy);
                 const prevSubTree = instance.subTree;
                 instance.subTree = subTree;
                 patch(prevSubTree, subTree, container, instance);
             }
         });
+    }
+    function patchComponentPreRender(instance, next) {
+        // 更新之前
+        instance.vnode = next;
+        instance.props = next.props;
+        instance.next = null;
     }
     function processElement(n1, n2, container, parentComponent, anchor) {
         if (!n1) {
@@ -582,6 +618,9 @@ function createRender(options) {
             let prevLeftIndex = i;
             let nextLeftIndex = i;
             let moved = false;
+            // [4,3,1]
+            // 当遍历到 1 时就可以确定后面的都需要移动
+            // move true
             let maxIndex = 0;
             const nextIndexMap = new Map();
             const needPatch = nextRightIndex - nextLeftIndex + 1;
@@ -695,7 +734,7 @@ function createVNode(type, props, children) {
         children,
         el: null,
         shapeFlag: getShapeFlag(type),
-        component: null,
+        instance: null,
         key: props && props.key,
     };
     if (isString(children)) {

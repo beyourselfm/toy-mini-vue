@@ -70,14 +70,36 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
       patchComponent(n1, n2)
     }
   }
-  function patchComponent(n1: VNode<Node>, n2: VNode<Node>) {}
+  function patchComponent(n1: VNode<Node>, n2: VNode<Node>) {
+    const instance = (n2.instance = n1.instance)
+    if (shouldPatchComponent(n1, n2)) {
+      instance.next = n2
+      instance.update()
+    } else {
+      n2.el = n1.el
+      instance.vnode = n2
+    }
+  }
 
+  function shouldPatchComponent(n1: VNode<Node>, n2: VNode<Node>) {
+    const { props: prevProps } = n1
+    const { props: nextProps } = n2
+    for (const key in nextProps) {
+      if (nextProps[key] !== prevProps[key]) {
+        return true
+      }
+    }
+    return false
+  }
   function mountComponent(
     vnode: VNode<Node>,
     container: Node,
     parentComponent?: ComponentInstance
   ) {
-    const instance = createComponentInstance(vnode, parentComponent)
+    const instance = (vnode.instance = createComponentInstance(
+      vnode,
+      parentComponent
+    ))
     setupComponent(instance)
 
     setupRenderEffect(instance, vnode, container)
@@ -88,7 +110,7 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     initialVNode: VNode<Node>,
     container: Node
   ) {
-    effect(() => {
+    instance.update = effect(() => {
       if (!instance.isMounted) {
         const { proxy } = instance
         const subTree = (instance.subTree = instance.render.call(proxy))
@@ -98,7 +120,12 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
         instance.isMounted = true
       } else {
         // update
-        const { proxy } = instance
+
+        const { proxy, next, vnode } = instance
+        if (next) {
+          next.el = vnode.el
+          patchComponentPreRender(instance, next)
+        }
         const subTree = instance.render.call(proxy)
         const prevSubTree = instance.subTree
 
@@ -106,6 +133,15 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
         patch(prevSubTree, subTree, container, instance)
       }
     })
+  }
+  function patchComponentPreRender(
+    instance: ComponentInstance,
+    next: VNode<Node>
+  ) {
+    // 更新之前
+    instance.vnode = next
+    instance.props = next.props
+    instance.next = null
   }
 
   function processElement(
@@ -273,6 +309,9 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
       let prevLeftIndex = i
       let nextLeftIndex = i
       let moved = false
+      // [4,3,1]
+      // 当遍历到 1 时就可以确定后面的都需要移动
+      // move true
       let maxIndex = 0
 
       const nextIndexMap = new Map()
