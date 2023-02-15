@@ -3,7 +3,7 @@ import { ComponentInstance } from './component'
 
 const publicPropertiesMap = {
   $el: (instance: ComponentInstance) => instance.vnode.el,
-  $data: (instance: ComponentInstance) => instance.setupState,
+  $state: (instance: ComponentInstance) => instance.setupState,
   $slots: (instance: ComponentInstance) => instance.slots,
   $props: (instance: ComponentInstance) => instance.props,
 }

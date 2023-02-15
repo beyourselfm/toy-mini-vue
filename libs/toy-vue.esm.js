@@ -306,7 +306,7 @@ function initProps(instance, rawProps) {
 
 const publicPropertiesMap = {
     $el: (instance) => instance.vnode.el,
-    $data: (instance) => instance.setupState,
+    $state: (instance) => instance.setupState,
     $slots: (instance) => instance.slots,
     $props: (instance) => instance.props,
 };
@@ -404,6 +404,30 @@ function setCurrentInstance(instance) {
     currentInstance = instance;
 }
 
+const queue = [];
+let isFLush = false;
+function nextTick(fn) {
+    return fn ? Promise.resolve().then(fn) : Promise.resolve();
+}
+function queueJobs(job) {
+    if (!queue.includes(job)) {
+        queue.push(job);
+    }
+    queueFlush();
+}
+function queueFlush() {
+    if (isFLush)
+        return;
+    isFLush = true;
+    Promise.resolve().then(() => {
+        isFLush = false;
+        let job;
+        while ((job = queue.shift())) {
+            job && job();
+        }
+    });
+}
+
 const Fragment = Symbol('Fragment');
 const Text = Symbol('Text');
 function createRender(options) {
@@ -488,6 +512,10 @@ function createRender(options) {
                 instance.subTree = subTree;
                 patch(prevSubTree, subTree, container, instance);
             }
+        }, {
+            scheduler() {
+                queueJobs(instance.update);
+            },
         });
     }
     function patchComponentPreRender(instance, next) {
@@ -849,4 +877,4 @@ function createApp(root) {
     return renderer.createApp(root);
 }
 
-export { Fragment, ReactiveEffect, Text, computed, convertToReactive, createApp, createAppApi, createComponentInstance, createRender, createTextVNode, createVNode, effect, getCurrentInstance, h, initProxy, inject, isProxy, isReactive, isReadonly, isRef, isTracking, provide, proxyRefs, reactive, readonly, ref, renderSlots, renderer, setCurrentInstance, setupComponent, shallowReadonly, stop, track, trackEffects, trigger, triggerEffects, unRef };
+export { Fragment, ReactiveEffect, Text, computed, convertToReactive, createApp, createAppApi, createComponentInstance, createRender, createTextVNode, createVNode, effect, getCurrentInstance, h, initProxy, inject, isProxy, isReactive, isReadonly, isRef, isTracking, nextTick, provide, proxyRefs, queueJobs, reactive, readonly, ref, renderSlots, renderer, setCurrentInstance, setupComponent, shallowReadonly, stop, track, trackEffects, trigger, triggerEffects, unRef };

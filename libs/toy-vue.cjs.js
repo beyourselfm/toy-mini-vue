@@ -308,7 +308,7 @@ function initProps(instance, rawProps) {
 
 const publicPropertiesMap = {
     $el: (instance) => instance.vnode.el,
-    $data: (instance) => instance.setupState,
+    $state: (instance) => instance.setupState,
     $slots: (instance) => instance.slots,
     $props: (instance) => instance.props,
 };
@@ -406,6 +406,30 @@ function setCurrentInstance(instance) {
     currentInstance = instance;
 }
 
+const queue = [];
+let isFLush = false;
+function nextTick(fn) {
+    return fn ? Promise.resolve().then(fn) : Promise.resolve();
+}
+function queueJobs(job) {
+    if (!queue.includes(job)) {
+        queue.push(job);
+    }
+    queueFlush();
+}
+function queueFlush() {
+    if (isFLush)
+        return;
+    isFLush = true;
+    Promise.resolve().then(() => {
+        isFLush = false;
+        let job;
+        while ((job = queue.shift())) {
+            job && job();
+        }
+    });
+}
+
 const Fragment = Symbol('Fragment');
 const Text = Symbol('Text');
 function createRender(options) {
@@ -490,6 +514,10 @@ function createRender(options) {
                 instance.subTree = subTree;
                 patch(prevSubTree, subTree, container, instance);
             }
+        }, {
+            scheduler() {
+                queueJobs(instance.update);
+            },
         });
     }
     function patchComponentPreRender(instance, next) {
@@ -872,8 +900,10 @@ exports.isReactive = isReactive;
 exports.isReadonly = isReadonly;
 exports.isRef = isRef;
 exports.isTracking = isTracking;
+exports.nextTick = nextTick;
 exports.provide = provide;
 exports.proxyRefs = proxyRefs;
+exports.queueJobs = queueJobs;
 exports.reactive = reactive;
 exports.readonly = readonly;
 exports.ref = ref;

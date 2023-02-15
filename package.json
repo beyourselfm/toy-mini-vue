@@ -7,7 +7,7 @@
   "scripts": {
     "test": "vitest",
     "build": "rollup -c rollup.config.js --bundleConfigAsCjs",
-    "dev": "vite playground/componentUpdate"
+    "dev": "vite playground/nextTick"
   },
   "keywords": [],
   "devDependencies": {

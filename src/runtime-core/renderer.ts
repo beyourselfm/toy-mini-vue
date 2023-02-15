@@ -6,6 +6,7 @@ import {
   setupComponent,
 } from './component'
 import { createAppApi, Nullable } from './createApp'
+import { queueJobs } from './scheduler'
 import { ShapeFlags } from './ShapeFlags'
 import { AnyObject, VNode, VNodeProps, Component, Children } from './vnode'
 
@@ -110,29 +111,36 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     initialVNode: VNode<Node>,
     container: Node
   ) {
-    instance.update = effect(() => {
-      if (!instance.isMounted) {
-        const { proxy } = instance
-        const subTree = (instance.subTree = instance.render.call(proxy))
-        // 子组件patch
-        patch(null, subTree, container, instance)
-        initialVNode.el = subTree.el
-        instance.isMounted = true
-      } else {
-        // update
+    instance.update = effect(
+      () => {
+        if (!instance.isMounted) {
+          const { proxy } = instance
+          const subTree = (instance.subTree = instance.render.call(proxy))
+          // 子组件patch
+          patch(null, subTree, container, instance)
+          initialVNode.el = subTree.el
+          instance.isMounted = true
+        } else {
+          // update
 
-        const { proxy, next, vnode } = instance
-        if (next) {
-          next.el = vnode.el
-          patchComponentPreRender(instance, next)
+          const { proxy, next, vnode } = instance
+          if (next) {
+            next.el = vnode.el
+            patchComponentPreRender(instance, next)
+          }
+          const subTree = instance.render.call(proxy)
+          const prevSubTree = instance.subTree
+
+          instance.subTree = subTree
+          patch(prevSubTree, subTree, container, instance)
         }
-        const subTree = instance.render.call(proxy)
-        const prevSubTree = instance.subTree
-
-        instance.subTree = subTree
-        patch(prevSubTree, subTree, container, instance)
+      },
+      {
+        scheduler() {
+          queueJobs(instance.update)
+        },
       }
-    })
+    )
   }
   function patchComponentPreRender(
     instance: ComponentInstance,
