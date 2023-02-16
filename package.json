@@ -2,23 +2,25 @@
   "name": "toy-vue",
   "version": "1.0.0",
   "description": "",
+  "keywords": [],
   "main": "libs/toy-vue.cjs.js",
   "module": "libs/toy-vue.esm.js",
   "scripts": {
     "test": "vitest",
     "build": "rollup -c rollup.config.js --bundleConfigAsCjs",
-    "dev": "vite playground/nextTick"
+    "dev": "vite playground/nextTick",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
-  "keywords": [],
   "devDependencies": {
+    "@ch1ll/eslint-config": "^0.0.18",
     "@rollup/plugin-typescript": "^11.0.0",
+    "eslint": "^8.34.0",
     "prettier": "^2.8.4",
     "rollup": "^3.14.0",
     "tslib": "^2.5.0",
     "typescript": "^4.9.5",
-    "vite": "^4.1.1"
-  },
-  "dependencies": {
+    "vite": "^4.1.1",
     "vitest": "^0.28.4"
   }
 }

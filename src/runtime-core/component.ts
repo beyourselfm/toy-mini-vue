@@ -1,6 +1,6 @@
 import {
-  computed,
   FunctionWithEffect,
+  computed,
   proxyRefs,
   shallowReadonly,
 } from '../reactivity'
@@ -9,7 +9,7 @@ import { Emit, emit } from './componentEmit'
 import { initProps } from './componentProps'
 import { publicInstanceProxyHandler } from './ComponentPublicInstance'
 import { initSlots } from './componentSlots'
-import { AnyObject, Render, Slots, VNode, Component, VNodeProps } from './vnode'
+import { AnyObject, Component, Render, Slots, VNode, VNodeProps } from './vnode'
 
 export type ComponentInstance<Node = AnyObject> = {
   vnode: VNode<Node>
@@ -30,7 +30,7 @@ export type ComponentInstance<Node = AnyObject> = {
 }
 export function createComponentInstance<Node = AnyObject>(
   vnode: VNode<Node>,
-  parent?: ComponentInstance
+  parent?: ComponentInstance,
 ): ComponentInstance<Node> {
   const instance: ComponentInstance<Node> = {
     vnode,
@@ -62,7 +62,7 @@ export function initProxy(instance: ComponentInstance) {
     {
       _: instance,
     },
-    publicInstanceProxyHandler
+    publicInstanceProxyHandler,
   )
 }
 function setupStatefulComponent(instance: ComponentInstance) {
@@ -84,9 +84,8 @@ function setupStatefulComponent(instance: ComponentInstance) {
 
 function handleSetupResult(instance: ComponentInstance, setupResult: any) {
   // setup return object or function
-  if (isObject(setupResult)) {
+  if (isObject(setupResult))
     instance.setupState = proxyRefs(setupResult)
-  }
 
   finishComponentSetup(instance)
 }
@@ -94,9 +93,8 @@ function handleSetupResult(instance: ComponentInstance, setupResult: any) {
 function finishComponentSetup(instance: ComponentInstance) {
   const Component = instance.type as Component
 
-  if (Component.render) {
+  if (Component.render)
     instance.render = Component.render
-  }
 }
 
 let currentInstance: ComponentInstance = null

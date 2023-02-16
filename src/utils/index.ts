@@ -7,7 +7,7 @@ export const hasOwn = (object: any, key: string | number | symbol) =>
 
 export const capitalize = (str: string) =>
   str.charAt(0).toUpperCase() + str.slice(1)
-export const toHandlerKey = (str: string) => (str ? 'on' + capitalize(str) : '')
+export const toHandlerKey = (str: string) => (str ? `on${capitalize(str)}` : '')
 
 export const isStartWithOn = (key: string) => /^on[A-Za-z]/.test(key)
 export const camelize = (str: string) =>
@@ -19,7 +19,7 @@ export const isEmptyObject = (obj: object) =>
 
 export function getSequence(arr: number[]): number[] {
   const p = arr.slice()
-  const result = [0]
+  const result = [ 0 ]
   let i, j, u, v, c
   const len = arr.length
   for (i = 0; i < len; i++) {
@@ -35,16 +35,15 @@ export function getSequence(arr: number[]): number[] {
       v = result.length - 1
       while (u < v) {
         c = ((u + v) / 2) | 0
-        if (arr[result[c]] < arrI) {
+        if (arr[result[c]] < arrI)
           u = c + 1
-        } else {
+        else
           v = c
-        }
       }
       if (arrI < arr[result[u]]) {
-        if (u > 0) {
+        if (u > 0)
           p[i] = result[u - 1]
-        }
+
         result[u] = i
       }
     }

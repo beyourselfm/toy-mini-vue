@@ -24,7 +24,7 @@ export const App = {
             console.log('foobar')
           },
         }),
-      ]
+      ],
     )
   },
   setup() {

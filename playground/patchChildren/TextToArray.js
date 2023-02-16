@@ -1,7 +1,7 @@
-import { ref, h } from '../../libs/toy-vue.esm'
+import { h, ref } from '../../libs/toy-vue.esm'
 const nextChildren = 'newChildren'
-const prevChildren = [h('div', {}, 'A'), h('div', {}, 'B')]
-const test = ['a', 'b']
+const prevChildren = [ h('div', {}, 'A'), h('div', {}, 'B') ]
+const test = [ 'a', 'b' ]
 
 export const ArrayToText = {
   name: 'ArrayToText',

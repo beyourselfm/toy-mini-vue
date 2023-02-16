@@ -22,7 +22,7 @@ describe('reactive', () => {
       nested: {
         foo: 1,
       },
-      array: [{ bar: 2 }],
+      array: [ { bar: 2 } ],
     }
 
     const observed = reactive(original)

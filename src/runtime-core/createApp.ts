@@ -1,5 +1,5 @@
 import { ComponentInstance } from './component'
-import { AnyObject, Component, createVNode, VNode, VNodeType } from './vnode'
+import { AnyObject, Component, VNode, VNodeType, createVNode } from './vnode'
 
 export type Nullable<T> = T | null | undefined
 export type RenderFunc<Node> = (

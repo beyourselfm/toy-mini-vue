@@ -18,11 +18,12 @@ class RefImpl<T = any> {
   }
 
   get value() {
-    if (isTracking()) {
+    if (isTracking())
       trackEffects(this.dep)
-    }
+
     return this._value
   }
+
   set value(newValue) {
     if (hasChanged(this._rawValue, newValue)) {
       this._rawValue = newValue
@@ -54,7 +55,8 @@ export function proxyRefs(ref: any): any {
       if (isRef(target[key]) && !isRef(newValue)) {
         target[key].value = newValue
         return true
-      } else {
+      }
+      else {
         return Reflect.set(target, key, newValue, receiver)
       }
     },

@@ -18,10 +18,7 @@ export type Component = {
 export type Context = {
   emit?: Emit
 }
-export type SlotType = (...args: any[]) => VNode | VNode[]
-export type Slots = Record<string, SlotType>
-export type VNodeType = string | Component | symbol
-export type Children<Node> = string | VNode | VNode<Node>[] | Slots
+
 export type VNode<Node = AnyObject> = {
   type: VNodeType
   el: null | Node
@@ -31,11 +28,15 @@ export type VNode<Node = AnyObject> = {
   key?: any
   instance: ComponentInstance
 }
+export type Children<Node> = string | VNode | VNode<Node>[] | Slots
+export type VNodeType = string | Component | symbol
+export type SlotType = (...args: any[]) => VNode | VNode[]
+export type Slots = Record<string, SlotType>
 
 export function createVNode<Node = AnyObject>(
   type: VNodeType,
   props?: VNodeProps,
-  children?: Children<Node>
+  children?: Children<Node>,
 ): VNode<Node> {
   const vnode = {
     type,
@@ -46,17 +47,15 @@ export function createVNode<Node = AnyObject>(
     instance: null,
     key: props && props.key,
   }
-  if (isString(children)) {
+  if (isString(children))
     vnode.shapeFlag = vnode.shapeFlag | ShapeFlags.TEXT_CHILDREN
-  } else if (Array.isArray(children)) {
+  else if (Array.isArray(children))
     vnode.shapeFlag = vnode.shapeFlag | ShapeFlags.ARRAY_CHILDREN
-  }
 
   if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    if (typeof children === 'object') {
-      // named slot
+    if (typeof children === 'object')
+    // named slot
       vnode.shapeFlag = vnode.shapeFlag | ShapeFlags.SLOT_CHILDREN
-    }
   }
 
   return vnode

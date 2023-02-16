@@ -1,5 +1,5 @@
-const pkg = require("./package.json")
-const  typescript = require( '@rollup/plugin-typescript')
+const typescript = require('@rollup/plugin-typescript')
+const pkg = require('./package.json')
 export default {
   input: './src/index.ts',
   output: [
@@ -12,5 +12,5 @@ export default {
       file: pkg.module,
     },
   ],
-  plugins: [typescript()],
+  plugins: [ typescript() ],
 }

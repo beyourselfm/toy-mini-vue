@@ -5,10 +5,9 @@ export const App = {
     const instance = getCurrentInstance()
     const count = ref(0)
     const onClick = () => {
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < 100; i++)
         count.value = i
-      }
-      debugger
+
       console.log(instance)
 
       nextTick(() => {
@@ -26,7 +25,7 @@ export const App = {
         {
           onClick: this.onClick,
         },
-        'click'
+        'click',
       ),
       h('p', {}, `${this.count}`),
     ])

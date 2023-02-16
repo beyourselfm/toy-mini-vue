@@ -29,7 +29,7 @@ export const App = {
           {
             onClick: this.changeMessage,
           },
-          'change message'
+          'change message',
         ),
         h(Child, {
           message: this.message,
@@ -40,10 +40,10 @@ export const App = {
           {
             onClick: this.changeCount,
           },
-          'change count'
+          'change count',
         ),
         h('p', {}, `${this.count}`),
-      ]
+      ],
     )
   },
 }

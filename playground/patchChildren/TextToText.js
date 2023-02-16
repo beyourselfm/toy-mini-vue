@@ -1,4 +1,4 @@
-import { ref, h } from '../../libs/toy-vue.esm'
+import { h, ref } from '../../libs/toy-vue.esm'
 const nextChildren = 'newText'
 const prevChildren = 'oldText'
 
@@ -12,8 +12,7 @@ export const TextToText = {
     }
   },
   render() {
-    const self = this
-    return self.isChange === true
+    return this.isChange === true
       ? h('div', {}, nextChildren)
       : h('div', {}, prevChildren)
   },

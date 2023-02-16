@@ -23,7 +23,7 @@ export function shallowReadonly<T extends object>(raw: T): T {
 
 function createReactiveObject<T extends object>(
   target: T,
-  baseHandlers: ProxyHandler<T>
+  baseHandlers: ProxyHandler<T>,
 ): T {
   if (!isObject(target)) {
     console.warn(`${target} must be a object`)

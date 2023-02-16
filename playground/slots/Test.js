@@ -1,9 +1,9 @@
 import {
   createTextVNode,
-  h,
-  renderSlots,
   getCurrentInstance,
+  h,
   inject,
+  renderSlots,
 } from '../../libs/toy-vue.esm'
 export const Test = {
   name: 'Test',

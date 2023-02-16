@@ -1,6 +1,6 @@
-import { ref, h } from '../../libs/toy-vue.esm'
+import { h, ref } from '../../libs/toy-vue.esm'
 const nextChildren = 'newChildren'
-const prevChildren = [h('div', { key: 'A' }, 'A'), h('div', { key: 'B' }, 'B')]
+const prevChildren = [ h('div', { key: 'A' }, 'A'), h('div', { key: 'B' }, 'B') ]
 
 export const ArrayToText = {
   name: 'ArrayToText',
@@ -12,8 +12,7 @@ export const ArrayToText = {
     }
   },
   render() {
-    const self = this
-    return self.isChange === true
+    return this.isChange === true
       ? h('div', {}, nextChildren)
       : h('div', { key: 'prev' }, prevChildren)
   },

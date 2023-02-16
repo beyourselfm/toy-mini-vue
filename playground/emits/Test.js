@@ -1,9 +1,9 @@
 import {
   createTextVNode,
-  h,
-  renderSlots,
   getCurrentInstance,
+  h,
   inject,
+  renderSlots,
 } from '../../libs/toy-vue.esm.js'
 export const Test = {
   name: 'Test',
@@ -11,7 +11,6 @@ export const Test = {
     const add = () => {
       emit('add', 1, 2)
       emit('foo-bar')
-      return
     }
     return { add }
   },
@@ -21,8 +20,8 @@ export const Test = {
       {
         onClick: this.add,
       },
-      'emit'
+      'emit',
     )
-    return h('div', {}, [btn])
+    return h('div', {}, [ btn ])
   },
 }

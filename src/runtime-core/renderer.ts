@@ -1,14 +1,14 @@
 import { effect } from '../reactivity'
 import { getSequence, isEmptyObject } from '../utils'
 import {
-  createComponentInstance,
   ComponentInstance,
+  createComponentInstance,
   setupComponent,
 } from './component'
-import { createAppApi, Nullable } from './createApp'
+import { Nullable, createAppApi } from './createApp'
 import { queueJobs } from './scheduler'
 import { ShapeFlags } from './ShapeFlags'
-import { AnyObject, VNode, VNodeProps, Component, Children } from './vnode'
+import { AnyObject, Children, Component, VNode, VNodeProps } from './vnode'
 
 export const Fragment = Symbol('Fragment')
 export const Text = Symbol('Text')
@@ -26,7 +26,7 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
   function render(
     vnode: VNode<Node>,
     container: Node,
-    parentComponent?: ComponentInstance
+    parentComponent?: ComponentInstance,
   ) {
     // init
     patch(null, vnode, container, parentComponent)
@@ -37,7 +37,7 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     n2: VNode<Node>,
     container: Node,
     parentComponent?: ComponentInstance,
-    anchor?: Node
+    anchor?: Node,
   ) {
     const { type, shapeFlag } = n2
 
@@ -49,11 +49,11 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
         processText(n1, n2, container)
         break
       default:
-        if (shapeFlag & ShapeFlags.ELEMENT) {
+        if (shapeFlag & ShapeFlags.ELEMENT)
           processElement(n1, n2, container, parentComponent, anchor)
-        } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT)
           processComponent(n1, n2, container, parentComponent)
-        }
+
         break
     }
   }
@@ -62,21 +62,20 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     n1: Nullable<VNode<Node>>,
     n2: VNode<Node>,
     container: Node,
-    parentComponent?: ComponentInstance
+    parentComponent?: ComponentInstance,
   ) {
     // stateful component
-    if (!n1) {
+    if (!n1)
       mountComponent(n2, container, parentComponent)
-    } else {
-      patchComponent(n1, n2)
-    }
+    else patchComponent(n1, n2)
   }
   function patchComponent(n1: VNode<Node>, n2: VNode<Node>) {
     const instance = (n2.instance = n1.instance)
     if (shouldPatchComponent(n1, n2)) {
       instance.next = n2
       instance.update()
-    } else {
+    }
+    else {
       n2.el = n1.el
       instance.vnode = n2
     }
@@ -86,20 +85,20 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     const { props: prevProps } = n1
     const { props: nextProps } = n2
     for (const key in nextProps) {
-      if (nextProps[key] !== prevProps[key]) {
+      if (nextProps[key] !== prevProps[key])
         return true
-      }
     }
+
     return false
   }
   function mountComponent(
     vnode: VNode<Node>,
     container: Node,
-    parentComponent?: ComponentInstance
+    parentComponent?: ComponentInstance,
   ) {
     const instance = (vnode.instance = createComponentInstance(
       vnode,
-      parentComponent
+      parentComponent,
     ))
     setupComponent(instance)
 
@@ -109,7 +108,7 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
   function setupRenderEffect(
     instance: ComponentInstance<Node>,
     initialVNode: VNode<Node>,
-    container: Node
+    container: Node,
   ) {
     instance.update = effect(
       () => {
@@ -120,7 +119,8 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
           patch(null, subTree, container, instance)
           initialVNode.el = subTree.el
           instance.isMounted = true
-        } else {
+        }
+        else {
           // update
 
           const { proxy, next, vnode } = instance
@@ -139,12 +139,12 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
         scheduler() {
           queueJobs(instance.update)
         },
-      }
+      },
     )
   }
   function patchComponentPreRender(
     instance: ComponentInstance,
-    next: VNode<Node>
+    next: VNode<Node>,
   ) {
     // 更新之前
     instance.vnode = next
@@ -157,40 +157,37 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     n2: VNode<Node>,
     container: Node,
     parentComponent?: ComponentInstance,
-    anchor?: Node
+    anchor?: Node,
   ) {
-    if (!n1) {
+    if (!n1)
       mountElement(n2, container, parentComponent, anchor)
-    } else {
-      patchElement(n1, n2, container, parentComponent, anchor)
-    }
+    else patchElement(n1, n2, container, parentComponent, anchor)
   }
 
   function mountElement(
     vnode: VNode<Node>,
     container: Node,
     parentComponent?: ComponentInstance,
-    anchor?: Node
+    anchor?: Node,
   ) {
     const el = (vnode.el = createElement(vnode.type as string))
 
     const { children, shapeFlag, props } = vnode
 
-    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN)
       setText(el, children as string)
-    } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+    else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN)
       mountChildren(children as VNode<Node>[], el, parentComponent)
-    }
-    for (const key in props) {
-      patchProp(el, key, null, props[key])
-    }
+
+    for (const key in props) patchProp(el, key, null, props[key])
+
     insert(el, container, anchor)
   }
   function mountChildren(
     children: VNode<Node>[],
     container: Node,
     parentComponent: ComponentInstance,
-    anchor?: Node
+    anchor?: Node,
   ) {
     children.forEach((v) => {
       patch(null, v, container, parentComponent, anchor)
@@ -201,7 +198,7 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     n1: Nullable<VNode<Node>>,
     n2: VNode<Node>,
     container: Node,
-    parentComponent?: ComponentInstance
+    parentComponent?: ComponentInstance,
   ) {
     mountChildren(n2.children as VNode<Node>[], container, parentComponent)
   }
@@ -217,7 +214,7 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     n2: VNode<Node>,
     container: Node,
     parentComponent?: ComponentInstance,
-    anchor?: Node
+    anchor?: Node,
   ) {
     const prevShapeFlag = n1.shapeFlag
     const nextShapeFlag = n2.shapeFlag
@@ -226,14 +223,14 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     const prevEl = n1.el
     if (nextShapeFlag & ShapeFlags.TEXT_CHILDREN) {
       // text/array -> text
-      if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-        // 清空旧的children
+      if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN)
+      // 清空旧的children
         unmountChildren(n1.children as VNode<Node>[])
-      }
-      if (prevChildren !== nextChildren) {
+
+      if (prevChildren !== nextChildren)
         setText(prevEl, nextChildren as string)
-      }
-    } else if (nextShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+    }
+    else if (nextShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
       // text/array -> array
       if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
         setText(prevEl, '')
@@ -241,15 +238,16 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
           nextChildren as VNode<Node>[],
           prevEl,
           parentComponent,
-          anchor
+          anchor,
         )
-      } else {
+      }
+      else {
         // array -> array
         patchKeyChildren(
           prevChildren as VNode<Node>[],
           nextChildren as VNode<Node>[],
           container,
-          parentComponent
+          parentComponent,
         )
       }
     }
@@ -259,11 +257,11 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     prevChildren: VNode<Node>[],
     nextChildren: VNode<Node>[],
     container: Node,
-    parentComponent: ComponentInstance
+    parentComponent: ComponentInstance,
   ) {
     let i = 0
-    let prevLength = prevChildren.length - 1
-    let nextLength = nextChildren.length - 1
+    const prevLength = prevChildren.length - 1
+    const nextLength = nextChildren.length - 1
     let prevRightIndex = prevLength
     let nextRightIndex = nextLength
 
@@ -275,11 +273,10 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     while (i <= prevRightIndex && i <= nextRightIndex) {
       const n1 = prevChildren[i]
       const n2 = nextChildren[i]
-      if (isSameVnodeType(n1, n2)) {
+      if (isSameVnodeType(n1, n2))
         patch(n1, n2, container, parentComponent)
-      } else {
-        break
-      }
+      else break
+
       i++
     }
 
@@ -287,11 +284,10 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     while (i <= prevRightIndex && i <= nextRightIndex) {
       const n1 = prevChildren[prevRightIndex]
       const n2 = nextChildren[nextRightIndex]
-      if (isSameVnodeType(n1, n2)) {
+      if (isSameVnodeType(n1, n2))
         patch(n1, n2, container, parentComponent)
-      } else {
-        break
-      }
+      else break
+
       prevRightIndex--
       nextRightIndex--
     }
@@ -306,16 +302,18 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
           i++
         }
       }
-    } else if (i > nextRightIndex) {
+    }
+    else if (i > nextRightIndex) {
       // old vnode list > new vnode list
       while (i <= prevRightIndex) {
         remove(prevChildren[i].el)
         i++
       }
-    } else {
+    }
+    else {
       // 中间
-      let prevLeftIndex = i
-      let nextLeftIndex = i
+      const prevLeftIndex = i
+      const nextLeftIndex = i
       let moved = false
       // [4,3,1]
       // 当遍历到 1 时就可以确定后面的都需要移动
@@ -342,9 +340,9 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
         }
 
         let nextIndex
-        if (!prevChild.key) {
-          nextIndex = nextIndexMap.get(prevChild.key)
-        } else {
+        if (!prevChild.key) { nextIndex = nextIndexMap.get(prevChild.key) }
+
+        else {
           for (let j = nextLeftIndex; j <= nextRightIndex; j++) {
             const nextChild = nextChildren[j]
             if (isSameVnodeType(prevChild, nextChild)) {
@@ -353,16 +351,17 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
             }
           }
         }
+
         if (!nextIndex) {
           remove(prevChild.el)
-        } else {
+        }
+        else {
           // index -> new position
           // value -> prev position
-          if (nextIndex > maxIndex) {
+          if (nextIndex > maxIndex)
             maxIndex = nextIndex
-          } else {
-            moved = true
-          }
+          else moved = true
+
           nextIndexInPrevIndexMap[nextIndex - nextLeftIndex] = i + 1
           patch(prevChild, nextChildren[nextIndex], container, parentComponent)
           patched++
@@ -376,18 +375,19 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
       for (let i = needPatch - 1; i >= 0; i--) {
         const nextPos = i + nextLeftIndex
         const nextChild = nextChildren[nextPos]
-        const anchor =
-          nextPos + 1 < nextLength ? nextChildren[nextPos + 1].el : null
+        const anchor
+          = nextPos + 1 < nextLength ? nextChildren[nextPos + 1].el : null
 
-        if (nextIndexInPrevIndexMap[i] === -1) {
-          // === -1 create new node
-          patch(null, nextChild, container, parentComponent, anchor)
-        } else if (moved) {
+        // === -1 create new node
+        if (nextIndexInPrevIndexMap[i] === -1) { patch(null, nextChild, container, parentComponent, anchor) }
+
+        else if (moved) {
           if (sequenceIndex < 0 || i !== sequence[sequenceIndex]) {
-            // 这时候的真实 Dom 还是 prevChild
+          // 这时候的真实 Dom 还是 prevChild
             console.log('need move')
             insert(nextChild.el, container, anchor)
-          } else {
+          }
+          else {
             sequenceIndex--
           }
         }
@@ -407,7 +407,7 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
     n2: VNode<Node>,
     container: Node,
     parentComponent?: ComponentInstance,
-    anchor?: Node
+    anchor?: Node,
   ) {
     // updateElement
     const oldProps = n1.props || {}
@@ -420,21 +420,19 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
   function patchProps(el: any, oldProps: VNodeProps, newProps: VNodeProps) {
     if (oldProps !== newProps) {
       for (const key in newProps) {
-        //
+      //
         const prevProp = oldProps[key]
         const newProp = newProps[key]
-        if (prevProp !== newProp) {
+        if (prevProp !== newProp)
           patchProp(el, key, prevProp, newProp)
-        }
       }
     }
 
     if (!isEmptyObject(oldProps)) {
       // remove oldProp
       for (const key in oldProps) {
-        if (!(key in newProps)) {
+        if (!(key in newProps))
           patchProp(el, key, oldProps[key], null)
-        }
       }
     }
   }

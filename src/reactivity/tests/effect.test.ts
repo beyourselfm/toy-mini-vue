@@ -31,13 +31,14 @@ describe('effect', () => {
     let result
     const foo = reactive({ foo: 1 })
     const scheduler = vi.fn(() => {
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       run = runner
     })
     const runner = effect(
       () => {
         result = foo.foo
       },
-      { scheduler }
+      { scheduler },
     )
     expect(scheduler).not.toHaveBeenCalled()
     expect(result).toBe(1)
@@ -75,7 +76,7 @@ describe('effect', () => {
       },
       {
         onStop,
-      }
+      },
     )
     stop(runner)
     expect(onStop).toBeCalledTimes(1)

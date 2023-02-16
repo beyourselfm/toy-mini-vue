@@ -16,7 +16,7 @@ export const App = {
         name: 'app',
         id: 'root',
       },
-      [h(Provider, {})]
+      [ h(Provider, {}) ],
     )
   },
   setup() {

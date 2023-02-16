@@ -17,7 +17,6 @@ describe('readonly', () => {
     const user = readonly({
       age: 10,
     })
-    //@ts-ignore
     user.age = 11
     expect(console.warn).toBeCalled()
   })
@@ -26,7 +25,7 @@ describe('readonly', () => {
       nested: {
         foo: 1,
       },
-      array: [{ bar: 2 }],
+      array: [ { bar: 2 } ],
     }
 
     const observed = readonly(original)

@@ -20,11 +20,11 @@ export const App = {
           Test,
           {},
           {
-            headers: (props) => h('div', {}, 'headers' + props),
+            headers: props => h('div', {}, `headers${props}`),
             footer: () => h('div', {}, 'footer'),
-          }
+          },
         ),
-      ]
+      ],
     )
   },
   setup() {

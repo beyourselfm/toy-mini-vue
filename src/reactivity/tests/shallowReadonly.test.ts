@@ -19,7 +19,6 @@ describe('shallowReadonly', () => {
     const user = shallowReadonly({
       age: 10,
     })
-    //@ts-ignore
     user.age = 11
     expect(console.warn).toBeCalled()
   })

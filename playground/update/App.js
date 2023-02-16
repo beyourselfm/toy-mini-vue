@@ -4,34 +4,34 @@ export const App = {
   render() {
     console.log(this.foo)
     return h('div', { foo: this.val.foo, bar: this.val.bar }, [
-      h('div', {}, 'count : ' + this.foo),
+      h('div', {}, `count : ${this.foo}`),
       h(
         'button',
         {
           onClick: this.onClick,
         },
-        'click'
+        'click',
       ),
       h(
         'button',
         {
           onClick: this.handleChangeVal,
         },
-        this.val.foo ? 'is' : 'not'
+        this.val.foo ? 'is' : 'not',
       ),
       h(
         'button',
         {
           onClick: this.handleChangeVal2,
         },
-        this.val.foo ? 'is' : 'not'
+        this.val.foo ? 'is' : 'not',
       ),
       h(
         'button',
         {
           onClick: this.handleChangeVal3,
         },
-        this.val.bar
+        this.val.bar,
       ),
     ])
   },

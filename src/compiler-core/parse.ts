@@ -40,22 +40,22 @@ function createParserContext(content: string): Context {
 
 function parseChildren(
   context: Context,
-  ancestors: ELementExpression[]
+  ancestors: ELementExpression[],
 ): Expression[] {
   const nodes = []
   let node
   while (!isEnd(context, ancestors)) {
     if (context.source.startsWith(openBlock)) {
       node = parseInterpolation(context)
-    } else if (context.source[0] === '<') {
-      if (/[a-z]/i.test(context.source[1])) {
+    }
+    else if (context.source[0] === '<') {
+      if (/[a-z]/i.test(context.source[1]))
         node = parseElement(context, ancestors)
-      }
     }
 
-    if (!node) {
+    if (!node)
       node = parseText(context)
-    }
+
     nodes.push(node)
   }
   return nodes
@@ -67,9 +67,8 @@ function isEnd(context: Context, ancestors: ELementExpression[]) {
     // 因为ancestors是一个stack ,所以从顶向下更好
     for (let i = ancestors.length - 1; i >= 0; i--) {
       const { tag } = ancestors[i]
-      if (startsWithEndTag(source, tag)) {
+      if (startsWithEndTag(source, tag))
         return true
-      }
     }
   }
   return !source
@@ -109,11 +108,10 @@ function parseElement(context: Context, ancestors: ELementExpression[]) {
   element.children = parseChildren(context, ancestors)
   ancestors.pop()
 
-  if (startsWithEndTag(context.source, element.tag)) {
+  if (startsWithEndTag(context.source, element.tag))
     parseTag(context, TagType.END)
-  } else {
+  else
     throw new Error(`Missing close tag :${element.tag}`)
-  }
 
   return element
 }
@@ -125,7 +123,8 @@ function parseTag(context: Context, tagType: TagType): ELementExpression {
   const tag = match[1]
   advanceBy(context, match[0].length)
   advanceBy(context, 1)
-  if (tagType === TagType.END) return
+  if (tagType === TagType.END)
+    return
   return {
     tag,
     children: null,
@@ -136,7 +135,7 @@ function parseTag(context: Context, tagType: TagType): ELementExpression {
 function parseText(context: Context) {
   // 是否遇到 {{
   let endIndex = context.source.length
-  const endToken = [openBlock, '<']
+  const endToken = [ openBlock, '<' ]
   endToken.forEach((token) => {
     const closeIndex = context.source.indexOf(token)
     if (closeIndex !== -1 && endIndex > closeIndex) {
