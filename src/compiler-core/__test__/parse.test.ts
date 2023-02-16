@@ -65,7 +65,7 @@ describe('parse', () => {
     `)
   })
 
-  it.only('', () => {
+  it('', () => {
     const ast = baseParse('<div><p>p tag</p>{{message}}</div>')
     expect(ast.children[0]).toMatchInlineSnapshot(`
       {
@@ -98,6 +98,6 @@ describe('parse', () => {
   it('should trow error when not close the tag', () => {
     expect(() => {
       baseParse('<div><span></div>')
-    }).toThrow()
+    }).toThrowError('Missing close tag :span')
   })
 })

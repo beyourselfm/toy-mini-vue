@@ -64,9 +64,10 @@ function parseChildren(
 function isEnd(context: Context, ancestors: ELementExpression[]) {
   const { source } = context
   if (source.startsWith('</')) {
-    for (let i = 0; i < ancestors.length; i++) {
+    // 因为ancestors是一个stack ,所以从顶向下更好
+    for (let i = ancestors.length - 1; i >= 0; i--) {
       const { tag } = ancestors[i]
-      if (source.slice(2, 2 + tag.length) === tag) {
+      if (startsWithEndTag(source, tag)) {
         return true
       }
     }
@@ -108,9 +109,16 @@ function parseElement(context: Context, ancestors: ELementExpression[]) {
   element.children = parseChildren(context, ancestors)
   ancestors.pop()
 
-  parseTag(context, TagType.END)
+  if (startsWithEndTag(context.source, element.tag)) {
+    parseTag(context, TagType.END)
+  } else {
+    throw new Error(`Missing close tag :${element.tag}`)
+  }
 
   return element
+}
+function startsWithEndTag(source: string, tag: string) {
+  return source.startsWith('</') && source.slice(2, 2 + tag.length) === tag
 }
 function parseTag(context: Context, tagType: TagType): ELementExpression {
   const match = /^<\/?([a-z]*)/i.exec(context.source)!
