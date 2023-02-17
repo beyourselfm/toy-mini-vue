@@ -29,6 +29,21 @@ describe('generate', () => {
       }"
     `)
   })
+  test('e', () => {
+    const ast = baseParse('<div><p></p></div>')
+    transform(ast, {
+      nodeTransforms: [ transformElement ],
+    })
+    const code = generate(ast)
+    expect(code).toMatchInlineSnapshot(`
+      {
+        "code": "const {createElement: _createElement} = Toy 
+      \\"return function render(_ctx, _cache){
+      return _createElement( 'div', null, _createElement( 'p', null, null))
+      }",
+      }
+    `)
+  })
   test('element', () => {
     const ast = baseParse('<div>hi,{{message}}</div>')
     transform(ast, {
@@ -38,7 +53,7 @@ describe('generate', () => {
     expect(code).toMatchInlineSnapshot(`
       "const {displayString: _displayString, createElement: _createElement} = Toy 
       \\"return function render(_ctx, _cache){
-      return _createElement('div',null, 'hi,' + _displayString(_ctx.message))
+      return _createElement( 'div', null, 'hi,' + _displayString(_ctx.message))
       }"
     `)
   })

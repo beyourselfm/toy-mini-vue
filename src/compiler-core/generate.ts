@@ -77,11 +77,28 @@ function genNode(node:Expression, context:GenerateContext) {
 
 function genElement(node:Expression, context:GenerateContext) {
   const { push, alias } = context
-  const { tag, children } = node
+  const { tag, children, props } = node.codegenNode
 
-  push(`${alias(CREATE_ELEMENT)}('${tag}',null, `)
-  genNode(children[0], context)
+  push(`${alias(CREATE_ELEMENT)}( `)
+  genNodeList(genNullable([ tag, props, children ]), context)
   push(')')
+}
+function genNullable(args:any[]) {
+  return args.map(arg => arg || 'null')
+}
+function genNodeList(nodes:Expression[], context:GenerateContext) {
+  const { push } = context
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i]
+    if (isString(node))
+      push(node)
+    else
+      genNode(node, context)
+
+    // add , (unless the last one)
+    if (i < nodes.length - 1)
+      push(', ')
+  }
 }
 function genInterpolation(node: Expression, context: GenerateContext) {
   const { push, alias } = context

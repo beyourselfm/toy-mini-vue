@@ -8,14 +8,16 @@ export function transformElement(node:Expression, context:TransformContext) {
     return () => {
       context.helperAdd(CREATE_ELEMENT)
       const { children, tag, props } = node
-      const vnodeTag = tag
+
+      const child = children[0] as any
+      const vnodeTag = `'${tag}'`
       const vnodeProps = props
 
       const vnode = {
         type: NodeTypes.ELEMENT,
         tag: vnodeTag,
         props: vnodeProps,
-        children,
+        children: child,
       }
       node.codegenNode = vnode
     }
