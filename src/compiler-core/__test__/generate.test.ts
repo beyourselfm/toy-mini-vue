@@ -32,11 +32,11 @@ describe('generate', () => {
   test('element', () => {
     const ast = baseParse('<div>hi,{{message}}</div>')
     transform(ast, {
-      nodeTransforms: [ transformExpression, transformText, transformElement ],
+      nodeTransforms: [ transformExpression, transformElement, transformText ],
     })
     const { code } = generate(ast)
     expect(code).toMatchInlineSnapshot(`
-      "const {createElement: _createElement, displayString: _displayString} = Toy 
+      "const {displayString: _displayString, createElement: _createElement} = Toy 
       \\"return function render(_ctx, _cache){
       return _createElement('div',null, 'hi,' + _displayString(_ctx.message))
       }"

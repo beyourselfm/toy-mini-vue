@@ -2,7 +2,8 @@ import { NodeTypes } from './ast'
 import { BaseExpression, Expression, Root } from './parse'
 import { CREATE_ELEMENT, DISPLAY_STRING } from './utils'
 
-export type NodeTranform = (node:Expression, context:TransformContext) => Expression | void
+export type OnExitFunc = () => void
+export type NodeTranform = (node:Expression, context:TransformContext) => OnExitFunc | void
 export type TransformOptions = {
   nodeTransforms?:NodeTranform[]
 }
@@ -22,9 +23,12 @@ export function transform(root:Root, options :TransformOptions = {}) {
 }
 function traverseNode(node: Expression, context:TransformContext) {
   const { nodeTransforms } = context
+  const onExitFns:OnExitFunc[] = []
   for (let i = 0; i < nodeTransforms.length; i++) {
     const transform = nodeTransforms[i]
-    transform(node, context)
+    const onExit = transform(node, context)
+    if (onExit)
+      onExitFns.push(onExit)
   }
   switch (node.type) {
     case NodeTypes.INTERPOLATION:
@@ -35,13 +39,15 @@ function traverseNode(node: Expression, context:TransformContext) {
 
     case NodeTypes.ROOT:
     case NodeTypes.ELEMENT:
-    case NodeTypes.COMPOUND_EXPRESSION:
       traverseChildren(node, context)
       break
 
     default:
       break
   }
+  let i = onExitFns.length
+  while (i--)
+    onExitFns[i]()
 }
 
 function traverseChildren(node:Expression, context:TransformContext) {
