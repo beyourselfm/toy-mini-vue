@@ -8,20 +8,13 @@ export type Root = BaseExpression
 export type BaseExpression = {
   type?: NodeTypes
   children:Expression[]
-  content?:Content
+  content?:string | Expression
   codegenNode?:Expression
-}
-export type ELementExpression = {
-  tag: string
-  children: Nullable<Expression[]>
-} & BaseExpression
-
-export type Content = string & {}
-export type SimpleExpression = BaseExpression & {
-  content: Content
+  helpers?:string[]
+  tag?: string
 }
 
-export type Expression = ELementExpression | SimpleExpression | Root
+export type Expression = BaseExpression
 
 const openBlock = '{{'
 const closeBlock = '}}'
@@ -41,7 +34,7 @@ function createParserContext(content: string): Context {
 
 function parseChildren(
   context: Context,
-  ancestors: ELementExpression[],
+  ancestors: Expression[],
 ): Expression[] {
   const nodes = []
   let node
@@ -62,7 +55,7 @@ function parseChildren(
   return nodes
 }
 
-function isEnd(context: Context, ancestors: ELementExpression[]) {
+function isEnd(context: Context, ancestors: Expression[]) {
   const { source } = context
   if (source.startsWith('</')) {
     // 因为ancestors是一个stack ,所以从顶向下更好
@@ -84,15 +77,13 @@ function parseInterpolation(context: Context) {
   const content = rawContent.trim()
   advanceBy(context, closeBlock.length)
 
-  return [
-    {
-      type: NodeTypes.INTERPOLATION,
-      content: {
-        type: NodeTypes.SIMPLE_EXPRESSION,
-        content,
-      },
+  return {
+    type: NodeTypes.INTERPOLATION,
+    content: {
+      type: NodeTypes.SIMPLE_EXPRESSION,
+      content,
     },
-  ]
+  }
 }
 
 function advanceBy(context: Context, length: number) {
@@ -104,7 +95,7 @@ export function createRoot(children: Expression[]): Root {
     type: NodeTypes.ROOT,
   }
 }
-function parseElement(context: Context, ancestors: ELementExpression[]) {
+function parseElement(context: Context, ancestors: Expression[]) {
   const element = parseTag(context, TagType.START)
   ancestors.push(element)
   element.children = parseChildren(context, ancestors)
@@ -120,7 +111,7 @@ function parseElement(context: Context, ancestors: ELementExpression[]) {
 function startsWithEndTag(source: string, tag: string) {
   return source.startsWith('</') && source.slice(2, 2 + tag.length) === tag
 }
-function parseTag(context: Context, tagType: TagType): ELementExpression {
+function parseTag(context: Context, tagType: TagType): Expression {
   const match = /^<\/?([a-z]*)/i.exec(context.source)!
   const tag = match[1]
   advanceBy(context, match[0].length)

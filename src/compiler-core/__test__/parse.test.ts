@@ -49,15 +49,13 @@ describe('parse', () => {
             "content": "text,",
             "type": 3,
           },
-          [
-            {
-              "content": {
-                "content": "message",
-                "type": 1,
-              },
-              "type": 0,
+          {
+            "content": {
+              "content": "message",
+              "type": 1,
             },
-          ],
+            "type": 0,
+          },
         ],
         "tag": "div",
         "type": 2,
@@ -80,15 +78,13 @@ describe('parse', () => {
             "tag": "p",
             "type": 2,
           },
-          [
-            {
-              "content": {
-                "content": "message",
-                "type": 1,
-              },
-              "type": 0,
+          {
+            "content": {
+              "content": "message",
+              "type": 1,
             },
-          ],
+            "type": 0,
+          },
         ],
         "tag": "div",
         "type": 2,
