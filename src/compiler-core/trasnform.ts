@@ -1,8 +1,8 @@
 import { NodeTypes } from './ast'
 import { BaseExpression, Expression, Root } from './parse'
-import { DISPLAY_STRING } from './utils'
+import { CREATE_ELEMENT, DISPLAY_STRING } from './utils'
 
-export type NodeTranform = (node:Expression) => Expression | void
+export type NodeTranform = (node:Expression, context:TransformContext) => Expression | void
 export type TransformOptions = {
   nodeTransforms?:NodeTranform[]
 }
@@ -10,8 +10,8 @@ export type Helper = (key:string|symbol)=>void
 export type TransformContext={
   root:Root,
   nodeTransforms:NodeTranform[],
-  helpers: Map<string, Helper>
-  helper:Helper
+  helpers: Set<string>
+  helperAdd:Helper
 }
 
 export function transform(root:Root, options :TransformOptions = {}) {
@@ -24,15 +24,18 @@ function traverseNode(node: Expression, context:TransformContext) {
   const { nodeTransforms } = context
   for (let i = 0; i < nodeTransforms.length; i++) {
     const transform = nodeTransforms[i]
-    transform(node)
+    transform(node, context)
   }
   switch (node.type) {
     case NodeTypes.INTERPOLATION:
-      context.helper((DISPLAY_STRING))
+
+      context.helperAdd((DISPLAY_STRING))
+
       break
 
     case NodeTypes.ROOT:
     case NodeTypes.ELEMENT:
+    case NodeTypes.COMPOUND_EXPRESSION:
       traverseChildren(node, context)
       break
 
@@ -54,15 +57,19 @@ function createTransformContext(root: Root, options: TransformOptions) :Transfor
   const context = {
     root,
     nodeTransforms: options.nodeTransforms || [],
-    helpers: new Map(),
-    helper(key:string) {
-      context.helpers.set(key, 1)
+    helpers: new Set<string>(),
+    helperAdd(key:string) {
+      context.helpers.add(key)
     },
   }
   return context
 }
 
 function createRootCodegen(root: BaseExpression) {
-  root.codegenNode = root.children[0]
+  const child = root.children[0]
+  if (child.type === NodeTypes.ELEMENT)
+    root.codegenNode = child
+  else
+    root.codegenNode = root.children[0]
 }
 

@@ -1,6 +1,7 @@
+import { isString } from '../utils'
 import { NodeTypes } from './ast'
-import { Expression } from './parse'
-import { DISPLAY_STRING, helperMapName } from './utils'
+import { BaseExpression, Expression } from './parse'
+import { CREATE_ELEMENT, DISPLAY_STRING, helperMapName } from './utils'
 
 export type GenerateResult = {
   code:string
@@ -8,6 +9,7 @@ export type GenerateResult = {
 export type GenerateContext = {
   code:string,
   push:CodePushFunc
+  alias:(val:symbol)=> string
 }
 
 const TOY = 'Toy'
@@ -18,6 +20,9 @@ function createGenerateContext() :GenerateContext {
     code: '',
     push(val:string) {
       context.code += val
+    },
+    alias(val:symbol) {
+      return `_${helperMapName[val]}`
     },
   }
   return context
@@ -58,14 +63,29 @@ function genNode(node:Expression, context:GenerateContext) {
     case NodeTypes.SIMPLE_EXPRESSION:
       genExpression(node, context)
       break
+    case NodeTypes.ELEMENT:
+      genElement(node, context)
+      break
+
+    case NodeTypes.COMPOUND_EXPRESSION:
+      genCompoundExpression(node, context)
+      break
     default:
       break
   }
 }
 
+function genElement(node:Expression, context:GenerateContext) {
+  const { push, alias } = context
+  const { tag, children } = node
+
+  push(`${alias(CREATE_ELEMENT)}('${tag}',null, `)
+  genNode(children[0], context)
+  push(')')
+}
 function genInterpolation(node: Expression, context: GenerateContext) {
-  const { push } = context
-  push(`_${helperMapName[DISPLAY_STRING]}(`)
+  const { push, alias } = context
+  push(`${alias(DISPLAY_STRING)}(`)
   genNode(node.content as Expression, context)
   push(')')
 }
@@ -77,5 +97,17 @@ function genText(node: Expression, context: GenerateContext) {
 function genExpression(node: Expression, context: GenerateContext) {
   const { push } = context
   push(`${node.content}`)
+}
+
+function genCompoundExpression(node: BaseExpression, context: GenerateContext) {
+  const { children } = node
+  const { push } = context
+  for (let i = 0; i < children.length; i++) {
+    const node = children[i]
+    if (isString(node))
+      push(node)
+    else
+      genNode(node, context)
+  }
 }
 

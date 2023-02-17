@@ -1,4 +1,5 @@
 import { Nullable } from 'vitest'
+import { Key } from '../reactivity'
 import { NodeTypes } from './ast'
 
 export type Context = {
@@ -7,11 +8,12 @@ export type Context = {
 export type Root = BaseExpression
 export type BaseExpression = {
   type?: NodeTypes
-  children:Expression[]
+  children?:Expression[]
   content?:string | Expression
   codegenNode?:Expression
   helpers?:string[]
   tag?: string
+  props?:Record<string, any>
 }
 
 export type Expression = BaseExpression

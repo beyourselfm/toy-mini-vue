@@ -2,6 +2,8 @@ import { describe, expect, test } from 'vitest'
 import { generate } from '../generate'
 import { baseParse } from '../parse'
 import { transformExpression } from '../transforms'
+import { transformElement } from '../transforms/transformElement'
+import { transformText } from '../transforms/transformText'
 import { transform } from '../trasnform'
 describe('generate', () => {
   test('string', () => {
@@ -24,6 +26,19 @@ describe('generate', () => {
       "const {displayString: _displayString} = Toy 
       \\"return function render(_ctx, _cache){
       return _displayString(_ctx.message)
+      }"
+    `)
+  })
+  test('element', () => {
+    const ast = baseParse('<div>hi,{{message}}</div>')
+    transform(ast, {
+      nodeTransforms: [ transformExpression, transformText, transformElement ],
+    })
+    const { code } = generate(ast)
+    expect(code).toMatchInlineSnapshot(`
+      "const {createElement: _createElement, displayString: _displayString} = Toy 
+      \\"return function render(_ctx, _cache){
+      return _createElement('div',null, 'hi,' + _displayString(_ctx.message))
       }"
     `)
   })
