@@ -4,11 +4,11 @@ import { NodeTypes } from './ast'
 export type Context = {
   source: string
 }
-export type Root = {
-  children: Expression[]
-}
+export type Root = BaseExpression
 export type BaseExpression = {
-  type: NodeTypes
+  type?: NodeTypes
+  children:Expression[]
+  content?:Content
 }
 export type ELementExpression = {
   tag: string
@@ -17,10 +17,10 @@ export type ELementExpression = {
 
 export type Content = string & {}
 export type SimpleExpression = BaseExpression & {
-  content: string
+  content: Content
 }
 
-export type Expression = ELementExpression | SimpleExpression
+export type Expression = ELementExpression | SimpleExpression | Root
 
 const openBlock = '{{'
 const closeBlock = '}}'
