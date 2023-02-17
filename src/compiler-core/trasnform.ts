@@ -1,4 +1,4 @@
-import { Expression, Root } from './parse'
+import { BaseExpression, Expression, Root } from './parse'
 
 export type NodeTranform = (node:Expression) => Expression | void
 export type TransformOptions = {
@@ -8,9 +8,10 @@ export type TransformContext={
   root:Root,
   nodeTransforms:NodeTranform[]
 }
-export function transform(root:Root, options ?:TransformOptions) {
+export function transform(root:Root, options :TransformOptions = {}) {
   const context = createTransformContext(root, options)
   traverseNode(root, context)
+  createRootCodegen(root)
 }
 function traverseNode(node: Expression, context:TransformContext) {
   const { nodeTransforms } = context
@@ -36,5 +37,9 @@ function createTransformContext(root: Root, options: TransformOptions) :Transfor
     nodeTransforms: options.nodeTransforms || [],
   }
   return context
+}
+
+function createRootCodegen(root: BaseExpression) {
+  root.codegenNode = root.children[0]
 }
 

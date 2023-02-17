@@ -9,6 +9,7 @@ export type BaseExpression = {
   type?: NodeTypes
   children:Expression[]
   content?:Content
+  codegenNode?:Expression
 }
 export type ELementExpression = {
   tag: string
@@ -100,6 +101,7 @@ function advanceBy(context: Context, length: number) {
 export function createRoot(children: Expression[]): Root {
   return {
     children,
+    type: NodeTypes.ROOT,
   }
 }
 function parseElement(context: Context, ancestors: ELementExpression[]) {
