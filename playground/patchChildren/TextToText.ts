@@ -5,14 +5,9 @@ const prevChildren = 'oldText'
 export const TextToText = {
   name: 'TextToText',
   setup() {
-    const isChange = ref(false)
-    window.isChange = isChange
-    return {
-      isChange,
-    }
   },
   render() {
-    return this.isChange === true
+    return this.$props.isChange === true
       ? h('div', {}, nextChildren)
       : h('div', {}, prevChildren)
   },

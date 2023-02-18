@@ -1,13 +1,23 @@
-import { h } from '../../libs/toy-vue.esm'
+import { h, ref } from '../../libs/toy-vue.esm'
 import { ArrayToArray } from './ArrayToArray'
-window.self = null
+import { ArrayToText } from './ArrayToText'
+import { TextToText } from './TextToText'
 export const App = {
   render() {
     return h('div', { tId: 1, id: 'root' }, [
-      h(ArrayToArray),
+      h('div', {}, [
+        h(ArrayToArray, { isChange: this.isChange }), h(TextToText, {
+          isChange: this.isChange,
+        }), h(ArrayToText, { isChange: this.isChange }),
+      ]),
+      h('button', { onClick: this.change }, 'change '),
     ])
-    // return h("div", { tId: 1 }, [h("p", {}, "Home"), h(TextToText)]);
-    // return h("div", { tId: 1 }, [h("p", {}, "Home"), h(TextToText)]);
   },
-  setup() {},
+  setup() {
+    const isChange = ref(false)
+    const change = () => {
+      isChange.value = !isChange.value
+    }
+    return { change, isChange }
+  },
 }

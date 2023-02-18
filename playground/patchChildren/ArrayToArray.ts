@@ -171,8 +171,7 @@ export const ArrayToArray = {
     }
   },
   render() {
-    const self = this
-    return self.isChange === true
+    return this.$props.isChange === true
       ? h('div', {}, nextChildren)
       : h('div', {}, prevChildren)
   },
