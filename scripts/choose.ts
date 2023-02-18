@@ -7,6 +7,7 @@ import { findUp } from 'find-up'
 export async function run() {
   console.clear()
   const playgroundDir = await findUp('playground', { type: 'directory' })
+  const libsDir = await findUp('libs', { type: 'directory' })
   if (!playgroundDir)
     throw new Error('can\'t find "playground" directory')
 
@@ -29,19 +30,35 @@ export async function run() {
         message: color.blue('Install dependencies?'),
         initialValue: false,
       }),
+
+    build: () =>
+      p.confirm({
+        message: color.yellow(`build ? ${libsDir ? color.gray('(you have already builded the library)') : color.red('(you haven\'t builded the library)')}`),
+        initialValue: !libsDir,
+      }),
   }, {
     onCancel: () => {
       p.cancel(color.red('Operation cancelled. '))
       process.exit(0)
     },
   })
+
   if (project.install) {
     const s = p.spinner()
-    s.start('installing and building')
+    s.start('installing')
     await $`pnpm install`
-    await $`pnpm run build`
     s.stop('Installed')
   }
+
+  if (project.build) {
+    const s = p.spinner()
+    s.start('building')
+    await $`pnpm run build`
+    s.stop('builded')
+  }
+
+  if (!libsDir && !project.build)
+    throw new Error('can\'t find the \'libs\', you must build the library (run "pnpm run build")')
 
   p.outro(color.green('the playground is started!'))
 
