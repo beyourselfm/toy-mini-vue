@@ -294,7 +294,7 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
       nextRightIndex--
     }
 
-    // new vnode list > old vnode list
+    // i > prevRightIndex 意味着 old children 已经结束了，只需要挂在新节点就好了
     if (i > prevRightIndex) {
       if (i <= nextRightIndex) {
         const nextPos = nextRightIndex + 1
@@ -305,6 +305,8 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
         }
       }
     }
+
+    // i > nextRightIndex 意味着 new children 已经结束了，只需要去掉这些节点就好了
     else if (i > nextRightIndex) {
       // old vnode list > new vnode list
       while (i <= prevRightIndex) {
@@ -316,10 +318,12 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
       // 中间
       const prevLeftIndex = i
       const nextLeftIndex = i
-      let moved = false
-      // [4,3,1]
-      // 当遍历到 1 时就可以确定后面的都需要移动
+      let needMove = false
+      // [4,5,1,]
+      // 当遍历到 1 时就可以确定需要移动
+      // 数组的index是持续递增的
       // move true
+      // 最大的index,上面是4
       let maxIndex = 0
 
       const nextIndexMap = new Map()
@@ -342,9 +346,12 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
         }
 
         let nextIndex
-        if (!prevChild.key) { nextIndex = nextIndexMap.get(prevChild.key) }
-
+        if (prevChild.key) {
+          // 有相同的key
+          nextIndex = nextIndexMap.get(prevChild.key)
+        }
         else {
+          // 寻找
           for (let j = nextLeftIndex; j <= nextRightIndex; j++) {
             const nextChild = nextChildren[j]
             if (isSameVnodeType(prevChild, nextChild)) {
@@ -355,26 +362,33 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
         }
 
         if (!nextIndex) {
+          // 删掉没有key的和在 new children 找不到的
           remove(prevChild.el)
         }
         else {
-          // index -> new position
-          // value -> prev position
+          // 打破持续递增
           if (nextIndex > maxIndex)
             maxIndex = nextIndex
-          else moved = true
+          else needMove = true
 
-          nextIndexInPrevIndexMap[nextIndex - nextLeftIndex] = i + 1
+          // index -> new position
+          // value -> prev position
+          nextIndexInPrevIndexMap[nextIndex - nextLeftIndex] = i
+
           patch(prevChild, nextChildren[nextIndex], container, parentComponent)
           patched++
         }
       }
 
-      const sequence = moved ? getSequence(nextIndexInPrevIndexMap) : []
+      // getSequence 返回最长递增子序列的index
+      // 意味着这些节点的相对位置没有发生变化
+      // 不需要移动
+      // [2,3,1,-1] -> return [0,1]
+      const sequence = needMove ? getSequence(nextIndexInPrevIndexMap) : []
 
-      // 倒叙
       let sequenceIndex = sequence.length - 1
       for (let i = needPatch - 1; i >= 0; i--) {
+        // 倒叙
         const nextPos = i + nextLeftIndex
         const nextChild = nextChildren[nextPos]
         const anchor
@@ -383,13 +397,13 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
         // === -1 create new node
         if (nextIndexInPrevIndexMap[i] === -1) { patch(null, nextChild, container, parentComponent, anchor) }
 
-        else if (moved) {
+        else if (needMove) {
           if (sequenceIndex < 0 || i !== sequence[sequenceIndex]) {
           // 这时候的真实 Dom 还是 prevChild
-            console.log('need move')
             insert(nextChild.el, container, anchor)
           }
           else {
+            // 不需要移动
             sequenceIndex--
           }
         }
