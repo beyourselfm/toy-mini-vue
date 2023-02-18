@@ -11,6 +11,6 @@
     "paths": {
       "@toy-vue/*": ["./packages/*/src"]
     }
-  }
-
+  },
+  "include": ["./packages/**/*"]
 }
