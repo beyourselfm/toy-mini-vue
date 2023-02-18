@@ -1,10 +1,6 @@
 import {
-  createTextVNode,
-  getCurrentInstance,
   h,
-  provide,
-} from '../libs/toy-vue.esm'
-import { Provider } from './provider'
+} from '../../libs/toy-vue.esm.js'
 import { Test } from './Test'
 window.self = null
 export const App = {
@@ -16,11 +12,19 @@ export const App = {
         name: 'app',
         id: 'root',
       },
-      [ h(Provider, {}) ],
+      [
+        h(Test, {
+          onAdd(...args) {
+            console.log(...args)
+          },
+          onFooBar() {
+            console.log('foobar')
+          },
+        }),
+      ],
     )
   },
   setup() {
-    provide('f', 'asd')
     return {
       foo: 1,
     }

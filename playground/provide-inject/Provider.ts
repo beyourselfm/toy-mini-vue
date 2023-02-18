@@ -1,4 +1,4 @@
-import { h, provide } from '../libs/toy-vue.esm'
+import { h, provide } from '../../libs/toy-vue.esm'
 import { Test } from './Test'
 
 export const Provider = {

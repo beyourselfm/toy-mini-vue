@@ -3,7 +3,8 @@ import {
   getCurrentInstance,
   h,
   provide,
-} from '../../libs/toy-vue.esm.js'
+} from '../../libs/toy-vue.esm'
+import { Provider } from './Provider'
 import { Test } from './Test'
 window.self = null
 export const App = {
@@ -15,19 +16,11 @@ export const App = {
         name: 'app',
         id: 'root',
       },
-      [
-        h(Test, {
-          onAdd(...args) {
-            console.log(...args)
-          },
-          onFooBar() {
-            console.log('foobar')
-          },
-        }),
-      ],
+      [ h(Provider, {}) ],
     )
   },
   setup() {
+    provide('f', 'asd')
     return {
       foo: 1,
     }

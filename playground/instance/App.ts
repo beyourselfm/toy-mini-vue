@@ -1,8 +1,6 @@
 import {
-  createTextVNode,
   getCurrentInstance,
   h,
-  provide,
 } from '../../libs/toy-vue.esm'
 import { Test } from './Test'
 window.self = null
