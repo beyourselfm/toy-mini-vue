@@ -15,7 +15,9 @@ export const App = {
     }
     return { message, changeCount, changeMessage, count }
   },
-  render() {
+  render(_ctx, _cache) {
+    console.log(_ctx)
+    console.log(_cache)
     window.self = this
     return h(
       'div',

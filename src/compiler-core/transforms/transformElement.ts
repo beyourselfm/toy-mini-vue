@@ -1,6 +1,6 @@
 import { NodeTypes } from '../ast'
 import { Expression } from '../parse'
-import { TransformContext } from '../trasnform'
+import { TransformContext } from '../transform'
 import { CREATE_ELEMENT } from '../utils'
 
 export function transformElement(node:Expression, context:TransformContext) {

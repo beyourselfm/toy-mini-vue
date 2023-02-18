@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { NodeTypes } from '../ast'
 import { Expression, baseParse } from '../parse'
-import { transform } from '../trasnform'
+import { transform } from '../transform'
 
 describe('transform', () => {
   it('', () => {

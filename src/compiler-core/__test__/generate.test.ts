@@ -4,7 +4,7 @@ import { baseParse } from '../parse'
 import { transformExpression } from '../transforms'
 import { transformElement } from '../transforms/transformElement'
 import { transformText } from '../transforms/transformText'
-import { transform } from '../trasnform'
+import { transform } from '../transform'
 describe('generate', () => {
   test('string', () => {
     const ast = baseParse('hi 1')
@@ -23,7 +23,7 @@ describe('generate', () => {
     })
     const { code } = generate(ast)
     expect(code).toMatchInlineSnapshot(`
-      "const {displayString: _displayString} = Toy 
+      "const {displayString: _displayString} = Toy
       \\"return function render(_ctx, _cache){
       return _displayString(_ctx.message)
       }"
@@ -37,9 +37,9 @@ describe('generate', () => {
     const code = generate(ast)
     expect(code).toMatchInlineSnapshot(`
       {
-        "code": "const {createElement: _createElement} = Toy 
+        "code": "const {createElementVNode: _createElementVNode} = Toy
       \\"return function render(_ctx, _cache){
-      return _createElement( 'div', null, _createElement( 'p', null, null))
+      return _createElementVNode( 'div', null, _createElementVNode( 'p', null, null))
       }",
       }
     `)
@@ -51,9 +51,9 @@ describe('generate', () => {
     })
     const { code } = generate(ast)
     expect(code).toMatchInlineSnapshot(`
-      "const {displayString: _displayString, createElement: _createElement} = Toy 
+      "const {displayString: _displayString, createElementVNode: _createElementVNode} = Toy
       \\"return function render(_ctx, _cache){
-      return _createElement( 'div', null, 'hi,' + _displayString(_ctx.message))
+      return _createElementVNode( 'div', null, 'hi,' + _displayString(_ctx.message))
       }"
     `)
   })

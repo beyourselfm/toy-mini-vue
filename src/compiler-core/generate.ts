@@ -12,7 +12,7 @@ export type GenerateContext = {
   alias:(val:symbol)=> string
 }
 
-const TOY = 'Toy'
+export const TOY = 'Toy'
 
 export type CodePushFunc = (val:string)=>void
 function createGenerateContext() :GenerateContext {
@@ -50,7 +50,7 @@ export function generate(ast:Expression) :GenerateResult {
 function genFunctionPre(ast:Expression, context:GenerateContext) {
   const alias = (val:string) => `${helperMapName[val]}: _${helperMapName[val]}`
   if (ast.helpers.length > 0)
-    context.push(`const {${ast.helpers.map(alias).join(', ')}} = ${TOY} \n"`)
+    context.push(`const {${ast.helpers.map(alias).join(', ')}} = ${TOY} \n`)
 }
 function genNode(node:Expression, context:GenerateContext) {
   switch (node.type) {

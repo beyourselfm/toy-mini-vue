@@ -8,7 +8,7 @@
   "scripts": {
     "test": "vitest",
     "build": "rollup -c rollup.config.js --bundleConfigAsCjs",
-    "dev": "vite playground/nextTick",
+    "dev": "vite playground/compiler-base",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

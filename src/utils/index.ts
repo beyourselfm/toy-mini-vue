@@ -58,3 +58,5 @@ export function getSequence(arr: number[]): number[] {
 
   return result
 }
+
+export * from './displayString'

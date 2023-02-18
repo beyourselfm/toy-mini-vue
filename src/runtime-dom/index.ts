@@ -1,4 +1,4 @@
-import { Component, VNodeType, createRender } from '../runtime-core'
+import { Component, createRender } from '../runtime-core'
 import { isStartWithOn } from '../utils'
 
 function createElement(type: string) {
@@ -39,3 +39,5 @@ export const renderer = createRender<HTMLElement>({
 export function createApp(root: Component) {
   return renderer.createApp(root)
 }
+export { displayString } from '../utils'
+export * from '../runtime-core'

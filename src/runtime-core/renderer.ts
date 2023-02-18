@@ -114,7 +114,8 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
       () => {
         if (!instance.isMounted) {
           const { proxy } = instance
-          const subTree = (instance.subTree = instance.render.call(proxy))
+          // proxy -> _ctx, "1" -> _cache
+          const subTree = (instance.subTree = instance.render.call(proxy, proxy, '1'))
           // 子组件patch
           patch(null, subTree, container, instance)
           initialVNode.el = subTree.el
@@ -128,7 +129,8 @@ export function createRender<Node = AnyObject>(options: RenderOptions<Node>) {
             next.el = vnode.el
             patchComponentPreRender(instance, next)
           }
-          const subTree = instance.render.call(proxy)
+          // proxy -> _ctx, "1" -> _cache
+          const subTree = instance.render.call(proxy, proxy, '1')
           const prevSubTree = instance.subTree
 
           instance.subTree = subTree

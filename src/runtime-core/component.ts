@@ -28,6 +28,9 @@ export type ComponentInstance<Node = AnyObject> = {
   update?: FunctionWithEffect
   instance?: ComponentInstance
 }
+
+let compiler:Function
+
 export function createComponentInstance<Node = AnyObject>(
   vnode: VNode<Node>,
   parent?: ComponentInstance,
@@ -93,8 +96,11 @@ function handleSetupResult(instance: ComponentInstance, setupResult: any) {
 function finishComponentSetup(instance: ComponentInstance) {
   const Component = instance.type as Component
 
-  if (Component.render)
-    instance.render = Component.render
+  if (compiler && !Component.render) {
+    if (Component.template)
+      Component.render = compiler(Component.template)
+  }
+  instance.render = Component.render
 }
 
 let currentInstance: ComponentInstance = null
@@ -104,4 +110,8 @@ export function getCurrentInstance() {
 }
 export function setCurrentInstance(instance: ComponentInstance) {
   currentInstance = instance
+}
+
+export function registerRuntimeCompiler(_compiler:Function) {
+  compiler = _compiler
 }

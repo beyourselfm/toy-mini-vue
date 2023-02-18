@@ -14,6 +14,7 @@ export type Component = {
   render?: Render
   setup?: Setup
   name?: string
+  template?:string
 }
 export type Context = {
   emit?: Emit
@@ -69,3 +70,5 @@ function getShapeFlag(type: VNodeType) {
     ? ShapeFlags.ELEMENT
     : ShapeFlags.STATEFUL_COMPONENT
 }
+
+export { createVNode as createElementVNode }
