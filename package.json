@@ -8,19 +8,24 @@
   "scripts": {
     "test": "vitest",
     "build": "rollup -c rollup.config.js --bundleConfigAsCjs",
-    "dev": "pnpm run build && vite playground/compiler-base",
+    "dev": "esno ./scripts/choose.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
   "devDependencies": {
     "@ch1ll/eslint-config": "^0.0.18",
+    "@clack/prompts": "^0.4.3",
     "@rollup/plugin-typescript": "^11.0.0",
     "eslint": "^8.34.0",
+    "esno": "^0.16.3",
+    "find-up": "^6.3.0",
+    "picocolors": "^1.0.0",
     "prettier": "^2.8.4",
     "rollup": "^3.14.0",
     "tslib": "^2.5.0",
     "typescript": "^4.9.5",
     "vite": "^4.1.1",
-    "vitest": "^0.28.4"
+    "vitest": "^0.28.4",
+    "zx": "^7.1.1"
   }
 }
