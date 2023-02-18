@@ -16,7 +16,7 @@ export async function run() {
   const project = await p.group({
     example: ({ results }) =>
       p.select({
-        message: color.cyan('choose an exmaple to Start!'),
+        message: color.cyan('choose an example to Start!'),
         initialValue: examples[0],
         options: examples.map((example) => {
           return {
@@ -33,7 +33,7 @@ export async function run() {
 
     build: () =>
       p.confirm({
-        message: color.yellow(`build ? ${libsDir ? color.gray('(you have already builded the library)') : color.red('(you haven\'t builded the library)')}`),
+        message: color.yellow(`build ? ${libsDir ? color.gray('(you have already built the library)') : color.red('(you haven\'t built the library)')}`),
         initialValue: !libsDir,
       }),
   }, {
@@ -54,7 +54,7 @@ export async function run() {
     const s = p.spinner()
     s.start('building')
     await $`pnpm run build`
-    s.stop('builded')
+    s.stop('built')
   }
 
   if (!libsDir && !project.build)

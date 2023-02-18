@@ -23,8 +23,8 @@ describe('generate', () => {
     })
     const { code } = generate(ast)
     expect(code).toMatchInlineSnapshot(`
-      "const {displayString: _displayString} = Toy
-      \\"return function render(_ctx, _cache){
+      "const {displayString: _displayString} = Toy 
+      return function render(_ctx, _cache){
       return _displayString(_ctx.message)
       }"
     `)
@@ -37,8 +37,8 @@ describe('generate', () => {
     const code = generate(ast)
     expect(code).toMatchInlineSnapshot(`
       {
-        "code": "const {createElementVNode: _createElementVNode} = Toy
-      \\"return function render(_ctx, _cache){
+        "code": "const {createElementVNode: _createElementVNode} = Toy 
+      return function render(_ctx, _cache){
       return _createElementVNode( 'div', null, _createElementVNode( 'p', null, null))
       }",
       }
@@ -51,8 +51,8 @@ describe('generate', () => {
     })
     const { code } = generate(ast)
     expect(code).toMatchInlineSnapshot(`
-      "const {displayString: _displayString, createElementVNode: _createElementVNode} = Toy
-      \\"return function render(_ctx, _cache){
+      "const {displayString: _displayString, createElementVNode: _createElementVNode} = Toy 
+      return function render(_ctx, _cache){
       return _createElementVNode( 'div', null, 'hi,' + _displayString(_ctx.message))
       }"
     `)

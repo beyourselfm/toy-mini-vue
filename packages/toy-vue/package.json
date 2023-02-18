@@ -5,7 +5,6 @@
   "author": "",
   "license": "ISC",
   "keywords": [],
-  "main": "index.js",
   "dependencies": {
     "@toy-vue/compiler-core": "workspace:^1.0.0",
     "@toy-vue/runtime-dom": "workspace:^1.0.0"

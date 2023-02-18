@@ -105,7 +105,7 @@ function cleanupEffect(effect: ReactiveEffect) {
 export function stop(runner: FunctionWithEffect) {
   if (!runner.effect)
     return
-  runner.effect?.stop()
+  runner.effect.stop()
 }
 export function effect(fn: Function, options: EffectOptions = {}) {
   const { scheduler } = options
