@@ -28,9 +28,10 @@ function flushQueueJobs() {
 
   // render
   let job
-  while (queue.length !== 0) job = queue.shift()
-
-  job && job()
+  while (queue.length !== 0) {
+    job = queue.shift()
+    job && job()
+  }
 }
 
 function flushPreFlushJobs() {
