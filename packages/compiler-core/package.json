@@ -1,0 +1,12 @@
+{
+  "name": "@toy-vue/compiler-core",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "main": "index.js",
+  "dependencies": {
+    "@toy-vue/utils": "workspace:^1.0.0"
+  }
+}

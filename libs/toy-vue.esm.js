@@ -1196,20 +1196,40 @@ function createApp(root) {
 
 var runtimeDom = /*#__PURE__*/Object.freeze({
     __proto__: null,
+    ReactiveEffect: ReactiveEffect,
+    computed: computed,
+    convertToReactive: convertToReactive,
     createApp: createApp,
     createElementVNode: createVNode,
     createRender: createRender,
     createTextVNode: createTextVNode,
     createVNode: createVNode,
     displayString: displayString,
+    effect: effect,
     getCurrentInstance: getCurrentInstance,
     h: h,
     inject: inject,
+    isProxy: isProxy,
+    isReactive: isReactive,
+    isReadonly: isReadonly,
+    isRef: isRef,
+    isTracking: isTracking,
     nextTick: nextTick,
     provide: provide,
+    proxyRefs: proxyRefs,
+    reactive: reactive,
+    readonly: readonly,
+    ref: ref,
     registerRuntimeCompiler: registerRuntimeCompiler,
     renderSlots: renderSlots,
-    renderer: renderer
+    renderer: renderer,
+    shallowReadonly: shallowReadonly,
+    stop: stop,
+    track: track,
+    trackEffects: trackEffects,
+    trigger: trigger,
+    triggerEffects: triggerEffects,
+    unRef: unRef
 });
 
 function compileToFunction(template) {

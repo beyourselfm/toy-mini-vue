@@ -1,7 +1,7 @@
 const typescript = require('@rollup/plugin-typescript')
 const pkg = require('./package.json')
 export default {
-  input: './src/index.ts',
+  input: './packages/toy-vue/src/index.ts',
   output: [
     {
       format: 'cjs',

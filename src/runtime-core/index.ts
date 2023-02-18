@@ -1,7 +1,0 @@
-export { h } from './h'
-export { renderSlots } from './helper/renderSlots'
-export * from './vnode'
-export { getCurrentInstance, registerRuntimeCompiler } from './component'
-export { provide, inject } from './apiInject'
-export { createRender } from './renderer'
-export { nextTick } from './scheduler'

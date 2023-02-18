@@ -1,26 +1,69 @@
 lockfileVersion: 5.4
 
-specifiers:
-  '@ch1ll/eslint-config': ^0.0.18
-  '@rollup/plugin-typescript': ^11.0.0
-  eslint: ^8.34.0
-  prettier: ^2.8.4
-  rollup: ^3.14.0
-  tslib: ^2.5.0
-  typescript: ^4.9.5
-  vite: ^4.1.1
-  vitest: ^0.28.4
+importers:
 
-devDependencies:
-  '@ch1ll/eslint-config': 0.0.18_7kw3g6rralp5ps6mg3uyzz6azm
-  '@rollup/plugin-typescript': 11.0.0_zdoyxabtq6er3tvvmx5eadq6qy
-  eslint: 8.34.0
-  prettier: 2.8.4
-  rollup: 3.14.0
-  tslib: 2.5.0
-  typescript: 4.9.5
-  vite: 4.1.1
-  vitest: 0.28.4
+  .:
+    specifiers:
+      '@ch1ll/eslint-config': ^0.0.18
+      '@rollup/plugin-typescript': ^11.0.0
+      eslint: ^8.34.0
+      prettier: ^2.8.4
+      rollup: ^3.14.0
+      tslib: ^2.5.0
+      typescript: ^4.9.5
+      vite: ^4.1.1
+      vitest: ^0.28.4
+    devDependencies:
+      '@ch1ll/eslint-config': 0.0.18_7kw3g6rralp5ps6mg3uyzz6azm
+      '@rollup/plugin-typescript': 11.0.0_zdoyxabtq6er3tvvmx5eadq6qy
+      eslint: 8.34.0
+      prettier: 2.8.4
+      rollup: 3.14.0
+      tslib: 2.5.0
+      typescript: 4.9.5
+      vite: 4.1.1
+      vitest: 0.28.4
+
+  packages/compiler-core:
+    specifiers:
+      '@toy-vue/utils': workspace:^1.0.0
+    dependencies:
+      '@toy-vue/utils': link:../utils
+
+  packages/reactivity:
+    specifiers:
+      '@toy-vue/utils': workspace:^1.0.0
+    dependencies:
+      '@toy-vue/utils': link:../utils
+
+  packages/runtime-core:
+    specifiers:
+      '@toy-vue/compiler-core': workspace:^1.0.0
+      '@toy-vue/reactivity': workspace:^1.0.0
+      '@toy-vue/utils': workspace:^1.0.0
+    dependencies:
+      '@toy-vue/compiler-core': link:../compiler-core
+      '@toy-vue/reactivity': link:../reactivity
+      '@toy-vue/utils': link:../utils
+
+  packages/runtime-dom:
+    specifiers:
+      '@toy-vue/runtime-core': workspace:^1.0.0
+      '@toy-vue/utils': workspace:^1.0.0
+    dependencies:
+      '@toy-vue/runtime-core': link:../runtime-core
+      '@toy-vue/utils': link:../utils
+
+  packages/toy:
+    specifiers:
+      '@toy-vue/compiler-core': workspace:^1.0.0
+      '@toy-vue/runtime-dom': workspace:^1.0.0
+    dependencies:
+      '@toy-vue/compiler-core': link:../compiler-core
+      '@toy-vue/runtime-dom': link:../runtime-dom
+
+  packages/utils:
+    specifiers: {}
 
 packages:
 

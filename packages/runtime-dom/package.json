@@ -1,0 +1,13 @@
+{
+  "name": "@toy-vue/runtime-dom",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "main": "index.js",
+  "dependencies": {
+    "@toy-vue/runtime-core": "workspace:^1.0.0",
+    "@toy-vue/utils": "workspace:^1.0.0"
+  }
+}
