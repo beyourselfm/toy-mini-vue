@@ -13,7 +13,7 @@
     "lint:fix": "eslint . --fix"
   },
   "devDependencies": {
-    "@ch1ll/eslint-config": "^0.0.18",
+    "@kiiro/eslint-config": "^0.0.18",
     "@clack/prompts": "^0.4.3",
     "@rollup/plugin-typescript": "^11.0.0",
     "eslint": "^8.34.0",

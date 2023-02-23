@@ -1,5 +1,5 @@
 module.exports = {
-  extends: '@ch1ll',
+  extends: '@kiiro',
   ignorePatterns: [ 'libs/**.js' ],
   rules: {
     'no-new-func': 'off',
