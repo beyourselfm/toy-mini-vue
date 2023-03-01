@@ -86,8 +86,7 @@ function setupStatefulComponent(instance: ComponentInstance) {
 
 function handleSetupResult(instance: ComponentInstance, setupResult: any) {
   // setup return object or function
-  if (isObject(setupResult))
-    instance.setupState = proxyRefs(setupResult)
+  if (isObject(setupResult)) { instance.setupState = proxyRefs(setupResult) }
 
   finishComponentSetup(instance)
 }
@@ -96,8 +95,7 @@ function finishComponentSetup(instance: ComponentInstance) {
   const Component = instance.type as Component
 
   if (compiler && !Component.render) {
-    if (Component.template)
-      Component.render = compiler(Component.template)
+    if (Component.template) { Component.render = compiler(Component.template) }
   }
   instance.render = Component.render
 }

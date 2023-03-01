@@ -7,8 +7,7 @@ describe('transform', () => {
   it('', () => {
     const ast = baseParse('<div>hi,{{message}}</div>')
     const plugin = (node:Expression) => {
-      if (node.type === NodeTypes.TEXT)
-        node.content += 'asdj'
+      if (node.type === NodeTypes.TEXT) { node.content += 'asdj' }
     }
 
     transform(ast, {

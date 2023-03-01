@@ -20,8 +20,7 @@ export function watchEffect(sourceFn:Function) {
     }
   }
   function getter() {
-    if (cleanup)
-      cleanup()
+    if (cleanup) { cleanup() }
 
     sourceFn(onCleanup)
   }

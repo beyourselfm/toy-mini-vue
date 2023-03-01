@@ -5,8 +5,7 @@ export const App = {
     const instance = getCurrentInstance()
     const count = ref(0)
     const onClick = () => {
-      for (let i = 0; i < 100; i++)
-        count.value = i
+      for (let i = 0; i < 100; i++) { count.value = i }
 
       console.log(instance)
 

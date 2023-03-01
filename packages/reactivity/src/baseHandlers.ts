@@ -10,21 +10,16 @@ const shallowReadonlyGet = createGetter(true, true)
 
 function createGetter(isReadonly = false, isShallow = false) {
   return function get(target: Object, key: Key) {
-    if (key === ReactiveFlags.IS_REACTIVE)
-      return !isReadonly
-    else if (key === ReactiveFlags.IS_READONLY)
-      return isReadonly
+    if (key === ReactiveFlags.IS_REACTIVE) { return !isReadonly }
+    else if (key === ReactiveFlags.IS_READONLY) { return isReadonly }
 
     const res = Reflect.get(target, key)
 
-    if (isShallow)
-      return res
+    if (isShallow) { return res }
 
-    if (isObject(res))
-      return isReadonly ? readonly(res) : reactive(res)
+    if (isObject(res)) { return isReadonly ? readonly(res) : reactive(res) }
 
-    if (!isReadonly)
-      track(target, key)
+    if (!isReadonly) { track(target, key) }
 
     return res
   }

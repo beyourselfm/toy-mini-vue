@@ -18,8 +18,7 @@ class RefImpl<T = any> {
   }
 
   get value() {
-    if (isTracking())
-      trackEffects(this.dep)
+    if (isTracking()) { trackEffects(this.dep) }
 
     return this._value
   }

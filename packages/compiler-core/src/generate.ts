@@ -49,8 +49,7 @@ export function generate(ast:Expression) :GenerateResult {
 
 function genFunctionPre(ast:Expression, context:GenerateContext) {
   const alias = (val:string) => `${helperMapName[val]}: _${helperMapName[val]}`
-  if (ast.helpers.length > 0)
-    context.push(`const {${ast.helpers.map(alias).join(', ')}} = ${TOY} \n`)
+  if (ast.helpers.length > 0) { context.push(`const {${ast.helpers.map(alias).join(', ')}} = ${TOY} \n`) }
 }
 function genNode(node:Expression, context:GenerateContext) {
   switch (node.type) {
@@ -90,14 +89,11 @@ function genNodeList(nodes:Expression[], context:GenerateContext) {
   const { push } = context
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
-    if (isString(node))
-      push(node)
-    else
-      genNode(node, context)
+    if (isString(node)) { push(node) }
+    else { genNode(node, context) }
 
     // add , (unless the last one)
-    if (i < nodes.length - 1)
-      push(', ')
+    if (i < nodes.length - 1) { push(', ') }
   }
 }
 function genInterpolation(node: Expression, context: GenerateContext) {
@@ -121,10 +117,8 @@ function genCompoundExpression(node: BaseExpression, context: GenerateContext) {
   const { push } = context
   for (let i = 0; i < children.length; i++) {
     const node = children[i]
-    if (isString(node))
-      push(node)
-    else
-      genNode(node, context)
+    if (isString(node)) { push(node) }
+    else { genNode(node, context) }
   }
 }
 

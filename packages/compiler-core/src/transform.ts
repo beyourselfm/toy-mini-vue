@@ -27,8 +27,7 @@ function traverseNode(node: Expression, context:TransformContext) {
   for (let i = 0; i < nodeTransforms.length; i++) {
     const transform = nodeTransforms[i]
     const onExit = transform(node, context)
-    if (onExit)
-      onExitFns.push(onExit)
+    if (onExit) { onExitFns.push(onExit) }
   }
   switch (node.type) {
     case NodeTypes.INTERPOLATION:
@@ -46,16 +45,14 @@ function traverseNode(node: Expression, context:TransformContext) {
       break
   }
   let i = onExitFns.length
-  while (i--)
-    onExitFns[i]()
+  while (i--) { onExitFns[i]() }
 }
 
 function traverseChildren(node:Expression, context:TransformContext) {
   const children = node.children
 
   if (children) {
-    for (let i = 0; i < children.length; i++)
-      traverseNode(children[i], context)
+    for (let i = 0; i < children.length; i++) { traverseNode(children[i], context) }
   }
 }
 
@@ -73,9 +70,7 @@ function createTransformContext(root: Root, options: TransformOptions) :Transfor
 
 function createRootCodegen(root: BaseExpression) {
   const child = root.children[0]
-  if (child.type === NodeTypes.ELEMENT)
-    root.codegenNode = child
-  else
-    root.codegenNode = root.children[0]
+  if (child.type === NodeTypes.ELEMENT) { root.codegenNode = child }
+  else { root.codegenNode = root.children[0] }
 }
 

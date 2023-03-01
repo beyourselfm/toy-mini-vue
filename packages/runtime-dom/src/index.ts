@@ -11,10 +11,8 @@ function patchProp(el: HTMLElement, key: string, value: any, nextVal: any) {
     el.addEventListener(event, nextVal)
   }
   else {
-    if (nextVal === undefined || nextVal === null)
-      el.removeAttribute(key)
-    else
-      el.setAttribute(key, nextVal)
+    if (nextVal === undefined || nextVal === null) { el.removeAttribute(key) }
+    else { el.setAttribute(key, nextVal) }
   }
 }
 function insert(el: HTMLElement, parent: HTMLElement, anchor?: HTMLElement) {
@@ -22,8 +20,7 @@ function insert(el: HTMLElement, parent: HTMLElement, anchor?: HTMLElement) {
 }
 function remove(el: HTMLElement) {
   const parent = el.parentNode
-  if (parent)
-    parent.removeChild(el)
+  if (parent) { parent.removeChild(el) }
 }
 function setText(el: HTMLElement, text: string) {
   el.textContent = text

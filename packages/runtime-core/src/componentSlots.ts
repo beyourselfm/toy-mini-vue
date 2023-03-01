@@ -3,8 +3,7 @@ import { ShapeFlags } from './ShapeFlags'
 
 export function initSlots(instance: ComponentInstance, children: any) {
   const { vnode } = instance
-  if (vnode.shapeFlag & ShapeFlags.SLOT_CHILDREN)
-    normalizeObjectSlots(children, instance.slots)
+  if (vnode.shapeFlag & ShapeFlags.SLOT_CHILDREN) { normalizeObjectSlots(children, instance.slots) }
 }
 
 function normalizeObjectSlots(children: any, slots: object) {

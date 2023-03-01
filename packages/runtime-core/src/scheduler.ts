@@ -5,8 +5,7 @@ export function nextTick(fn?: () => void) {
   return fn ? Promise.resolve().then(fn) : Promise.resolve()
 }
 export function queueJobs(job: Function) {
-  if (!queue.includes(job))
-    queue.push(job)
+  if (!queue.includes(job)) { queue.push(job) }
 
   queueFlush()
 }
@@ -16,8 +15,7 @@ export function queuePreFlushJob(fn:Function) {
   queueFlush()
 }
 function queueFlush() {
-  if (isFLush)
-    return
+  if (isFLush) { return }
   isFLush = true
   nextTick(flushQueueJobs)
 }

@@ -8,8 +8,7 @@ export async function run() {
   console.clear()
   const playgroundDir = await findUp('playground', { type: 'directory' })
   const libsDir = await findUp('libs', { type: 'directory' })
-  if (!playgroundDir)
-    throw new Error('can\'t find "playground" directory')
+  if (!playgroundDir) { throw new Error('can\'t find "playground" directory') }
 
   const examples = await promises.readdir(playgroundDir)
   p.intro(`${color.cyan('welcome to toy-vue!')}`)
@@ -57,8 +56,7 @@ export async function run() {
     s.stop('built')
   }
 
-  if (!libsDir && !project.build)
-    throw new Error('can\'t find the \'libs\', you must build the library (run "pnpm run build")')
+  if (!libsDir && !project.build) { throw new Error('can\'t find the \'libs\', you must build the library (run "pnpm run build")') }
 
   p.outro(color.green('the playground is started!'))
 

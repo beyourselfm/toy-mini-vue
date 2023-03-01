@@ -35,14 +35,11 @@ export function getSequence(arr: number[]): number[] {
       v = result.length - 1
       while (u < v) {
         c = ((u + v) / 2) | 0
-        if (arr[result[c]] < arrI)
-          u = c + 1
-        else
-          v = c
+        if (arr[result[c]] < arrI) { u = c + 1 }
+        else { v = c }
       }
       if (arrI < arr[result[u]]) {
-        if (u > 0)
-          p[i] = result[u - 1]
+        if (u > 0) { p[i] = result[u - 1] }
 
         result[u] = i
       }
